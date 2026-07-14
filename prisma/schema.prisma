@@ -1,0 +1,404 @@
+// McNeely Family Poodles — PostgreSQL schema
+// Aligned to confirmed feature list (public / admin / customer portal)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth & people ──────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  /// Null when the user only signs in with Google/Facebook
+  passwordHash  String?
+  role          UserRole  @default(CUSTOMER)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  applications     Application[]
+  depositRequests  DepositRequest[]
+  ownerships       DogOwnership[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Breeding inventory ─────────────────────────────────────────────────────
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+/// Adoption / sales pipeline for a puppy
+enum PuppyStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  GUARDIANSHIP
+  UNAVAILABLE
+}
+
+model ParentDog {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  sex          Sex
+  color        String?
+  weightLbs    Float?
+  heightInches Float?
+  genetics     String?  @db.Text
+  description  String?  @db.Text
+  isRetired    Boolean  @default(false)
+  isPublished  Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  littersAsDam  Litter[]         @relation("DamLitters")
+  littersAsSire Litter[]         @relation("SireLitters")
+  photos        Photo[]          @relation("ParentPhotos")
+  medicalRecords MedicalRecord[] @relation("ParentMedical")
+}
+
+model Litter {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  name        String?
+  birthDate   DateTime
+  notes       String?    @db.Text
+  isPublished Boolean    @default(true)
+  damId       String
+  sireId      String
+  dam         ParentDog  @relation("DamLitters", fields: [damId], references: [id])
+  sire        ParentDog  @relation("SireLitters", fields: [sireId], references: [id])
+  puppies     Puppy[]
+  photos      Photo[]    @relation("LitterPhotos")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([birthDate])
+  @@index([damId])
+  @@index([sireId])
+}
+
+model Puppy {
+  id           String      @id @default(cuid())
+  slug         String      @unique
+  name         String
+  sex          Sex
+  color        String?
+  status       PuppyStatus @default(AVAILABLE)
+  /// Price in USD cents (e.g. 150000 = $1,500)
+  priceCents   Int?
+  /// Free-text when not a fixed price (e.g. "Available for Guardianship")
+  priceLabel   String?
+  description  String?     @db.Text
+  birthDate    DateTime?
+  isPublished  Boolean     @default(true)
+  sortOrder    Int         @default(0)
+  litterId     String?
+  litter       Litter?     @relation(fields: [litterId], references: [id], onDelete: SetNull)
+  photos       Photo[]     @relation("PuppyPhotos")
+  medicalRecords MedicalRecord[] @relation("PuppyMedical")
+  applications Application[]
+  depositRequests DepositRequest[]
+  ownerships   DogOwnership[]
+  documents    DogDocument[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([status, isPublished])
+  @@index([litterId])
+}
+
+// ─── Photos (hero + gallery) ────────────────────────────────────────────────
+
+enum PhotoEntity {
+  PARENT
+  PUPPY
+  LITTER
+  ARTICLE
+  SHOP
+  SITE
+}
+
+model Photo {
+  id          String      @id @default(cuid())
+  url         String
+  alt         String?
+  sortOrder   Int         @default(0)
+  /// Hero / card image when true (one primary recommended per entity)
+  isPrimary   Boolean     @default(false)
+  entityType  PhotoEntity
+  width       Int?
+  height      Int?
+  parentDogId String?
+  puppyId     String?
+  litterId    String?
+  articleId   String?
+  shopItemId  String?
+  parentDog   ParentDog?  @relation("ParentPhotos", fields: [parentDogId], references: [id], onDelete: Cascade)
+  puppy       Puppy?      @relation("PuppyPhotos", fields: [puppyId], references: [id], onDelete: Cascade)
+  litter      Litter?     @relation("LitterPhotos", fields: [litterId], references: [id], onDelete: Cascade)
+  article     Article?    @relation("ArticlePhotos", fields: [articleId], references: [id], onDelete: Cascade)
+  shopItem    ShopItem?   @relation("ShopPhotos", fields: [shopItemId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+
+  @@index([parentDogId])
+  @@index([puppyId])
+  @@index([litterId])
+  @@index([articleId])
+  @@index([shopItemId])
+}
+
+// ─── Admin-only medical records ─────────────────────────────────────────────
+
+model MedicalRecord {
+  id          String     @id @default(cuid())
+  title       String
+  recordDate  DateTime?
+  notes       String?    @db.Text
+  /// Optional file URL (PDF/image) stored like photos
+  fileUrl     String?
+  parentDogId String?
+  puppyId     String?
+  parentDog   ParentDog? @relation("ParentMedical", fields: [parentDogId], references: [id], onDelete: Cascade)
+  puppy       Puppy?     @relation("PuppyMedical", fields: [puppyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([parentDogId])
+  @@index([puppyId])
+}
+
+// ─── Customer documents (post-purchase portal) ──────────────────────────────
+
+enum DocumentType {
+  VET_RECORD
+  VACCINATION
+  PEDIGREE
+  AKC
+  OTHER
+}
+
+/// Links a customer to a puppy they adopted (grants portal document access)
+model DogOwnership {
+  id         String   @id @default(cuid())
+  userId     String
+  puppyId    String
+  /// When the customer gained ownership / access
+  grantedAt  DateTime @default(now())
+  notes      String?  @db.Text
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  puppy      Puppy    @relation(fields: [puppyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, puppyId])
+  @@index([userId])
+  @@index([puppyId])
+}
+
+/// Files visible to the owning customer in the portal (not full medical admin notes)
+model DogDocument {
+  id           String       @id @default(cuid())
+  puppyId      String
+  type         DocumentType
+  title        String
+  fileUrl      String
+  /// e.g. AKC upgrade only if paid
+  isPaidUpgrade Boolean     @default(false)
+  isVisibleToOwner Boolean  @default(true)
+  puppy        Puppy        @relation(fields: [puppyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([puppyId, type])
+}
+
+// ─── Applications & deposits ────────────────────────────────────────────────
+
+enum ApplicationStatus {
+  NEW
+  REVIEWING
+  APPROVED
+  DECLINED
+  WAITLISTED
+}
+
+model Application {
+  id        String            @id @default(cuid())
+  userId    String?
+  puppyId   String?
+  name      String
+  email     String
+  phone     String?
+  message   String?           @db.Text
+  homeType  String?
+  hasKids   Boolean?
+  hasPets   Boolean?
+  /// Extra questionnaire answers as JSON string if needed
+  answers   String?           @db.Text
+  status    ApplicationStatus @default(NEW)
+  user      User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  puppy     Puppy?            @relation(fields: [puppyId], references: [id], onDelete: SetNull)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@index([puppyId])
+}
+
+enum DepositMethod {
+  VENMO
+  ZELLE
+  PAYPAL
+}
+
+enum DepositStatus {
+  REQUESTED
+  AWAITING_PAYMENT
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+model DepositRequest {
+  id            String        @id @default(cuid())
+  userId        String?
+  puppyId       String?
+  name          String
+  email         String
+  phone         String?
+  method        DepositMethod
+  /// Requested deposit amount in USD cents
+  amountCents   Int?
+  status        DepositStatus @default(REQUESTED)
+  customerNote  String?       @db.Text
+  adminNote     String?       @db.Text
+  paidAt        DateTime?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  puppy         Puppy?        @relation(fields: [puppyId], references: [id], onDelete: SetNull)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@index([puppyId])
+}
+
+// ─── Content: articles, shop, social ────────────────────────────────────────
+
+model Article {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  excerpt     String?   @db.Text
+  content     String    @db.Text
+  coverUrl    String?
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  photos      Photo[]   @relation("ArticlePhotos")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isPublished, publishedAt])
+}
+
+enum ShopItemType {
+  /// Sponsored / affiliate link (e.g. Amazon)
+  AFFILIATE
+  /// Something the breeder sells directly
+  PRODUCT
+}
+
+model ShopItem {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  title       String
+  description String?      @db.Text
+  type        ShopItemType @default(AFFILIATE)
+  /// External URL (Amazon, etc.) or internal checkout later
+  url         String?
+  priceCents  Int?
+  isPublished Boolean      @default(true)
+  sortOrder   Int          @default(0)
+  photos      Photo[]      @relation("ShopPhotos")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([isPublished, sortOrder])
+}
+
+/// Curated social posts (Instagram/Facebook) — avoids fragile live API dependency
+model SocialPost {
+  id          String   @id @default(cuid())
+  platform    String
+  postUrl     String
+  caption     String?  @db.Text
+  imageUrl    String?
+  postedAt    DateTime?
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished, sortOrder])
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}

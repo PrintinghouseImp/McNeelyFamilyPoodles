@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { NAV_LINKS, SITE } from "@/lib/constants";
+import { HEADER_NAV, SITE } from "@/lib/constants";
+
+function linkActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -20,11 +25,8 @@ export function SiteHeader() {
         </Link>
 
         <div className="hidden items-center space-x-8 md:flex">
-          {NAV_LINKS.map((link) => {
-            const active =
-              link.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(link.href);
+          {HEADER_NAV.map((link) => {
+            const active = linkActive(pathname, link.href);
             return (
               <Link
                 key={link.href}
@@ -55,11 +57,8 @@ export function SiteHeader() {
       {open && (
         <div className="border-t border-gray-200 bg-white md:hidden">
           <div className="container mx-auto space-y-3 px-6 py-4 text-center">
-            {NAV_LINKS.map((link) => {
-              const active =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
+            {HEADER_NAV.map((link) => {
+              const active = linkActive(pathname, link.href);
               return (
                 <Link
                   key={link.href}

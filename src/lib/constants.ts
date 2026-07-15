@@ -28,17 +28,37 @@ export const BRAND = {
   border: "#E5E7EB",
 } as const;
 
-/** Public marketing navigation */
-export const NAV_LINKS = [
+/**
+ * Primary header nav — prospective clients only (Good Dog–style simplicity).
+ */
+export const HEADER_NAV = [
   { href: "/", label: "Home" },
   { href: "/puppies", label: "Puppies" },
-  { href: "/parents", label: "Sires & Dams" },
-  { href: "/about", label: "About Us" },
+  { href: "/parents", label: "Parents" },
+  { href: "/about", label: "About" },
+  { href: "/apply", label: "Apply" },
+] as const;
+
+/**
+ * Extra public links — footer only (not in header).
+ */
+export const FOOTER_MORE_LINKS = [
+  { href: "/forever-homes", label: "Forever Homes" },
   { href: "/articles", label: "Articles" },
-  { href: "/apply", label: "Application" },
   { href: "/shop", label: "Shop" },
   { href: "/social", label: "Social" },
 ] as const;
+
+/**
+ * Footer account / access links.
+ */
+export const FOOTER_ACCOUNT_LINKS = [
+  { href: "/portal/login", label: "Customer portal" },
+  { href: "/admin/login", label: "Admin portal" },
+] as const;
+
+/** @deprecated Use HEADER_NAV — kept for any residual imports */
+export const NAV_LINKS = HEADER_NAV;
 
 export const ADMIN_NAV = [
   { href: "/admin", label: "Dashboard" },
@@ -46,9 +66,11 @@ export const ADMIN_NAV = [
   { href: "/admin/parents", label: "Sires & Dams" },
   { href: "/admin/litters", label: "Litters" },
   { href: "/admin/medical", label: "Medical records" },
+  { href: "/admin/ownerships", label: "Ownerships" },
   { href: "/admin/applications", label: "Applications" },
   { href: "/admin/deposits", label: "Deposits" },
   { href: "/admin/articles", label: "Articles" },
+  { href: "/admin/forever-homes", label: "Forever Homes" },
   { href: "/admin/shop", label: "Shop" },
   { href: "/admin/social", label: "Social" },
   { href: "/admin/media", label: "Media" },

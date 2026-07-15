@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Sex } from "@/generated/prisma/client";
+import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { PhotoPlaceholder } from "@/components/inventory/photo-placeholder";
 import { formatSex } from "@/lib/format";
 
@@ -26,12 +27,7 @@ export function ParentCard({ parent }: ParentCardProps) {
       className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:border-gray-300 hover:shadow-sm"
     >
       {primary ? (
-        // eslint-disable-next-line @next/next/no-img-element -- external URLs until image host is configured
-        <img
-          src={primary.url}
-          alt={primary.alt ?? parent.name}
-          className="aspect-[4/3] w-full object-cover transition group-hover:scale-[1.01]"
-        />
+        <PhotoFrame src={primary.url} alt={primary.alt ?? parent.name} />
       ) : (
         <PhotoPlaceholder label={parent.name} />
       )}

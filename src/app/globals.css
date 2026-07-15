@@ -87,3 +87,25 @@ a.link-quiet {
 a.link-quiet:hover {
   color: var(--ink);
 }
+
+/*
+  Photo display — show full uploaded images without cropping
+  (object-fit: contain; height: auto; max-height: 80vh)
+*/
+.photo-frame {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.photo-frame img,
+.photo-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 80vh;
+  object-fit: contain;
+}

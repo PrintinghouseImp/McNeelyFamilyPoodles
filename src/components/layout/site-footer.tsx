@@ -1,37 +1,77 @@
 import Link from "next/link";
-import { NAV_LINKS, SITE } from "@/lib/constants";
+import {
+  FOOTER_ACCOUNT_LINKS,
+  FOOTER_MORE_LINKS,
+  HEADER_NAV,
+  SITE,
+} from "@/lib/constants";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
     <footer className="mt-auto border-t border-gray-200 bg-white">
-      <div className="container mx-auto grid gap-8 px-6 py-12 md:grid-cols-3">
+      <div className="container mx-auto grid gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="text-lg font-semibold text-black">{SITE.name}</p>
           <p className="mt-2 text-sm text-gray-500">{SITE.tagline}</p>
-        </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-2 md:justify-center">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm text-gray-500 transition hover:text-black"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-        <div className="md:text-right">
-          <Link
-            href="/portal/login"
-            className="text-sm text-gray-500 transition hover:text-black"
-          >
-            Customer portal →
-          </Link>
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-4 text-xs text-gray-400">
             © {year} {SITE.name}
           </p>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+            Explore
+          </p>
+          <ul className="mt-3 space-y-2">
+            {HEADER_NAV.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="text-sm text-gray-500 transition hover:text-black"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+            More
+          </p>
+          <ul className="mt-3 space-y-2">
+            {FOOTER_MORE_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="text-sm text-gray-500 transition hover:text-black"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+            Account
+          </p>
+          <ul className="mt-3 space-y-2">
+            {FOOTER_ACCOUNT_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="text-sm text-gray-500 transition hover:text-black"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>

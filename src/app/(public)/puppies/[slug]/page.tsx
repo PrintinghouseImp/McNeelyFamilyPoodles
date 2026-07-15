@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { PhotoPlaceholder } from "@/components/inventory/photo-placeholder";
 import { StatusBadge } from "@/components/inventory/status-badge";
 import { PageHero } from "@/components/ui/page-hero";
@@ -91,11 +92,9 @@ export default async function PuppyDetailPage({ params }: Props) {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
             {primary ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <PhotoFrame
                 src={primary.url}
                 alt={primary.alt ?? puppy.name}
-                className="aspect-[4/3] w-full object-cover"
               />
             ) : (
               <PhotoPlaceholder label={puppy.name} />
@@ -164,13 +163,21 @@ export default async function PuppyDetailPage({ params }: Props) {
               </div>
             ) : null}
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               {canApply ? (
                 <Link
                   href={`/apply?puppy=${puppy.slug}`}
                   className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-900"
                 >
                   Apply for {puppy.name}
+                </Link>
+              ) : null}
+              {canApply ? (
+                <Link
+                  href={`/portal/deposits/new?puppy=${puppy.slug}`}
+                  className="inline-flex items-center justify-center rounded-full border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:text-black"
+                >
+                  Request deposit
                 </Link>
               ) : null}
               <Link
@@ -188,12 +195,11 @@ export default async function PuppyDetailPage({ params }: Props) {
             <h2 className="mb-6 text-xl font-semibold text-black">Gallery</h2>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
               {gallery.map((photo) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <PhotoFrame
                   key={photo.id}
                   src={photo.url}
                   alt={photo.alt ?? puppy.name}
-                  className="aspect-square w-full rounded-xl object-cover"
+                  className="rounded-xl"
                 />
               ))}
             </div>

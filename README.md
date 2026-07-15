@@ -22,8 +22,8 @@ Source of truth: `src/lib/constants.ts` (`BRAND`) and `src/app/globals.css`.
 ## Feature highlights
 
 - **Public:** Lander, Sires/Dams, Puppies by litter (links to sire/dam), About, Technical articles, Application, Social, Shop
-- **Admin:** Dog CRUD, status/price/specs, phone camera photos (hero + gallery), medical records (admin-only)
-- **Portal:** Google/Facebook login, applications, deposit requests (Venmo/Zelle/PayPal), post-adoption documents
+- **Admin:** Dog CRUD, status/price/specs, phone camera photos (hero + gallery), medical records, ownership grants
+- **Portal:** Google/Facebook login, applications, deposit requests (Venmo/Zelle/PayPal), post-adoption document vault (owned dogs’ medical files)
 - **Security:** Role separation, Cloudflare Turnstile for email signup (OAuth skips captcha)
 - **Mobile:** Responsive for iPhone and Android
 

@@ -27,6 +27,11 @@ Full-stack rebuild for a boutique miniature poodle breeding business. Mobile-fir
 | **Application** | Puppy application entry point (portal login may be required to submit) |
 | **Social** | Instagram & Facebook links; optional post feed (see notes) |
 | **Shop** | Sponsored links (e.g. Amazon) and/or items the breeder sells |
+| **Forever Homes** | Alumni photo grid + testimonials |
+
+**Header nav** (prospective clients): Home, Puppies, Parents, About, Apply — `HEADER_NAV` in `src/lib/constants.ts`.
+
+**Footer** (Good Dog–style full map): same Explore links + Forever Homes, Articles, Shop, Social + Customer/Admin portal — `FOOTER_MORE_LINKS` / `FOOTER_ACCOUNT_LINKS`.
 
 ### Mobile (iPhone & Android)
 
@@ -145,11 +150,11 @@ Puppy
   ├── litter → Litter (implies sire/dam)
   ├── status, price, specs
   ├── Photo[] (hero + gallery)
-  ├── MedicalRecord[]  (admin only)
+  ├── MedicalRecord[]  (admin UI; also portal vault for owners of this puppy)
   ├── Application[]
   ├── DepositRequest[]
-  ├── DogOwnership[]
-  └── DogDocument[]  (customer portal after grant)
+  ├── DogOwnership[]   (admin grants → customer vault)
+  └── DogDocument[]    (optional extra docs model; Phase 9 vault uses MedicalRecord)
 
 Article (technical articles)
 ShopItem (affiliate / own products)
@@ -241,8 +246,10 @@ Middleware enforces:
 | Admin CMS + medical | Admin | Email + password |
 | Apply / deposit request | Customer | Google or Facebook OAuth |
 | Email signup (if enabled) | Customer | Password + **Turnstile** captcha |
-| View own dog documents | Customer (owner) | OAuth session |
-| View any medical record | Admin only | Admin session |
+| View own dog documents | Customer (owner) | OAuth session after admin **ownership grant** |
+| View puppy medical records (portal vault) | Customer (owner of that puppy) | Same Phase 4 `MedicalRecord` rows for that puppy |
+| View any medical record (full admin UI) | Admin only | Admin session |
+| Parent medical records | Admin only | Not exposed via ownership (owners are linked to puppies) |
 
 ---
 
@@ -254,12 +261,12 @@ Middleware enforces:
 | **1** | PostgreSQL migrate, seed admin, brand public shells |
 | **2** | Public inventory: parents, litters, puppies (by litter, sire/dam links) |
 | **3** | Admin auth + dog CRUD + mobile photo upload (hero/gallery) |
-| **4** | Admin medical records |
-| **5** | Customer OAuth (Google/Facebook) + portal shell |
-| **6** | Applications + Turnstile on any password signup |
-| **7** | Deposit requests (Venmo/Zelle/PayPal handles + admin confirm) |
-| **8** | Articles + Shop + Social links/curated posts |
-| **9** | Dog ownership + customer document vault |
+| **4** | Admin medical records: **titled/labeled** PDF + scan (image) uploads per parent/puppy; admin-only |
+| **5** | Customer OAuth (Google/Facebook) + protected portal shell (dashboard counts) |
+| **6** | Applications: portal-auth form submit → DB; admin review statuses (NEW→…); Turnstile later if password signup |
+| **7** | Deposit requests: portal form → DB; show handles; admin mark PAID/etc. |
+| **8** | Content CMS: admin CRUD for articles, shop, social (profiles + posts), forever homes; public pages load published rows |
+| **9** | Dog ownership + customer document vault (grant owner → portal access to that puppy’s Phase 4 medical files) |
 | **10** | Hardening: rate limits, audits, PWA optional |
 
 ---

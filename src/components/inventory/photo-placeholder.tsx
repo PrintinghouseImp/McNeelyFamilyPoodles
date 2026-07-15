@@ -12,10 +12,10 @@ export function PhotoPlaceholder({
 
   return (
     <div
-      className={`flex aspect-[4/3] w-full items-center justify-center bg-gray-100 ${className}`}
+      className={`photo-frame min-h-[12rem] ${className}`}
       aria-hidden
     >
-      <span className="text-5xl font-light text-gray-300">{initial}</span>
+      <span className="py-16 text-5xl font-light text-gray-300">{initial}</span>
     </div>
   );
 }

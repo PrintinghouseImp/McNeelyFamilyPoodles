@@ -35,6 +35,40 @@ export function formatPuppyStatus(status: PuppyStatus): string {
   return STATUS_LABELS[status] ?? status;
 }
 
+const APPLICATION_STATUS_LABELS: Record<string, string> = {
+  NEW: "New",
+  REVIEWING: "Reviewing",
+  APPROVED: "Approved",
+  DECLINED: "Declined",
+  WAITLISTED: "Waitlisted",
+};
+
+export function formatApplicationStatus(status: string): string {
+  return APPLICATION_STATUS_LABELS[status] ?? status;
+}
+
+const DEPOSIT_METHOD_LABELS: Record<string, string> = {
+  VENMO: "Venmo",
+  ZELLE: "Zelle",
+  PAYPAL: "PayPal",
+};
+
+const DEPOSIT_STATUS_LABELS: Record<string, string> = {
+  REQUESTED: "Requested",
+  AWAITING_PAYMENT: "Awaiting payment",
+  PAID: "Paid",
+  CANCELLED: "Cancelled",
+  REFUNDED: "Refunded",
+};
+
+export function formatDepositMethod(method: string): string {
+  return DEPOSIT_METHOD_LABELS[method] ?? method;
+}
+
+export function formatDepositStatus(status: string): string {
+  return DEPOSIT_STATUS_LABELS[status] ?? status;
+}
+
 export function formatDate(
   date: Date | string | null | undefined,
   options: Intl.DateTimeFormatOptions = {

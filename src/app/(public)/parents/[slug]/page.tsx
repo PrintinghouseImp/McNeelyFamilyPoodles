@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { PhotoPlaceholder } from "@/components/inventory/photo-placeholder";
 import { PuppyCard } from "@/components/inventory/puppy-card";
 import { PageHero } from "@/components/ui/page-hero";
@@ -131,11 +132,9 @@ export default async function ParentDetailPage({ params }: Props) {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
             {primary ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <PhotoFrame
                 src={primary.url}
                 alt={primary.alt ?? parent.name}
-                className="aspect-[4/3] w-full object-cover"
               />
             ) : (
               <PhotoPlaceholder label={parent.name} />
@@ -186,12 +185,11 @@ export default async function ParentDetailPage({ params }: Props) {
             <h2 className="mb-6 text-xl font-semibold text-black">Gallery</h2>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
               {gallery.map((photo) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <PhotoFrame
                   key={photo.id}
                   src={photo.url}
                   alt={photo.alt ?? parent.name}
-                  className="aspect-square w-full rounded-xl object-cover"
+                  className="rounded-xl"
                 />
               ))}
             </div>

@@ -114,8 +114,14 @@ async function main() {
 
   const settings: { key: string; value: string }[] = [
     { key: "location", value: "Phoenix, Arizona" },
-    { key: "instagram_url", value: "https://instagram.com/" },
-    { key: "facebook_url", value: "https://facebook.com/" },
+    {
+      key: "instagram_url",
+      value: process.env.INSTAGRAM_URL ?? "https://instagram.com/",
+    },
+    {
+      key: "facebook_url",
+      value: process.env.FACEBOOK_URL ?? "https://facebook.com/",
+    },
     { key: "venmo_handle", value: process.env.VENMO_HANDLE ?? "" },
     { key: "zelle_contact", value: process.env.ZELLE_CONTACT ?? "" },
     { key: "paypal_me_url", value: process.env.PAYPAL_ME_URL ?? "" },
@@ -126,6 +132,82 @@ async function main() {
       where: { key: setting.key },
       update: { value: setting.value },
       create: setting,
+    });
+  }
+
+  // Optional sample curated posts (skip if any already exist)
+  const socialCount = await prisma.socialPost.count();
+  if (socialCount === 0) {
+    await prisma.socialPost.createMany({
+      data: [
+        {
+          platform: "Instagram",
+          postUrl: "https://instagram.com/",
+          caption:
+            "Sample curated post — puppies in the play yard. Replace with a real post URL from admin.",
+          isPublished: true,
+          sortOrder: 1,
+          postedAt: new Date("2025-08-15"),
+        },
+        {
+          platform: "Facebook",
+          postUrl: "https://facebook.com/",
+          caption:
+            "Sample curated post — Froggie × Arsibalt litter update. Managed in SocialPost, not a live Meta API feed.",
+          isPublished: true,
+          sortOrder: 2,
+          postedAt: new Date("2025-09-01"),
+        },
+      ],
+    });
+  }
+
+  // Sample forever-home stories (skip if any already exist)
+  const foreverCount = await prisma.foreverHome.count();
+  if (foreverCount === 0) {
+    await prisma.foreverHome.createMany({
+      data: [
+        {
+          dogName: "Pepper",
+          familyName: "The Rivera Family",
+          quote:
+            "She settled in from day one and is already the heart of our home. Grateful for the careful matching and support.",
+          location: "Phoenix, AZ",
+          isPublished: true,
+          sortOrder: 1,
+          placedAt: new Date("2025-10-01"),
+        },
+        {
+          dogName: "Buddy",
+          familyName: "The Chen Family",
+          quote:
+            "Thoughtful breeders, a healthy puppy, and ongoing advice. We could not be happier with our miniature poodle.",
+          location: "Scottsdale, AZ",
+          isPublished: true,
+          sortOrder: 2,
+          placedAt: new Date("2025-08-12"),
+        },
+        {
+          dogName: "Luna",
+          familyName: "The Brooks Family",
+          quote:
+            "Our first poodle has brought so much joy. Clear communication every step of the way.",
+          location: "Tucson, AZ",
+          isPublished: true,
+          sortOrder: 3,
+          placedAt: new Date("2025-06-20"),
+        },
+        {
+          dogName: "Milo",
+          familyName: "The Patel Family",
+          quote:
+            "A well-socialized companion and a smooth go-home experience. Highly recommend McNeely Family Poodles.",
+          location: "Mesa, AZ",
+          isPublished: true,
+          sortOrder: 4,
+          placedAt: new Date("2025-05-05"),
+        },
+      ],
     });
   }
 

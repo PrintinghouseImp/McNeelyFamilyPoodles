@@ -1,9 +1,20 @@
 import "dotenv/config";
 import pg from "pg";
 
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not set");
+}
+
+// Strip sslmode from URI so node-pg does not force verify-full (breaks Supabase).
+const cleanUrl = connectionString
+  .replace(/([?&])sslmode=[^&]*/g, "$1")
+  .replace(/[?&]$/, "")
+  .replace(/\?&/, "?");
+
 const client = new pg.Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes("sslmode=require")
+  connectionString: cleanUrl,
+  ssl: connectionString.includes("supabase.co")
     ? { rejectUnauthorized: false }
     : undefined,
 });

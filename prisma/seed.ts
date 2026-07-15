@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { hash } from "bcryptjs";
+import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import {
   PrismaClient,
@@ -13,7 +14,19 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is required for seeding");
 }
 
-const adapter = new PrismaPg({ connectionString });
+// node-pg treats sslmode=require as verify-full; Supabase pooler needs relaxed TLS.
+const isSupabase = connectionString.includes("supabase.co");
+const url = isSupabase
+  ? connectionString
+      .replace(/([?&])sslmode=[^&]*/g, "$1")
+      .replace(/[?&]$/, "")
+      .replace(/\?&/, "?")
+  : connectionString;
+const pool = new Pool({
+  connectionString: url,
+  ssl: isSupabase ? { rejectUnauthorized: false } : undefined,
+});
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {

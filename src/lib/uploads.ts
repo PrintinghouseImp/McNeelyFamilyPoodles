@@ -1,6 +1,13 @@
 import { mkdir, writeFile, unlink } from "fs/promises";
 import path from "path";
 import { randomBytes } from "crypto";
+import {
+  getR2PublicBaseUrl,
+  isR2Configured,
+  objectKeyFromPublicUrl,
+  r2DeleteObject,
+  r2PutObject,
+} from "@/lib/r2";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
 const MAX_DOC_BYTES = 10 * 1024 * 1024; // 10 MB (matches serverActions bodySizeLimit)
@@ -33,13 +40,23 @@ function extFromType(type: string, originalName: string): string {
   return "jpg";
 }
 
-async function writeUpload(
+function contentTypeFor(file: File, ext: string): string {
+  const t = (file.type || "").toLowerCase();
+  if (t && t !== "application/octet-stream") return t;
+  if (ext === "pdf") return "application/pdf";
+  if (ext === "png") return "image/png";
+  if (ext === "webp") return "image/webp";
+  if (ext === "gif") return "image/gif";
+  if (ext === "heic" || ext === "heif") return "image/heic";
+  return "image/jpeg";
+}
+
+function validateFile(
   file: File,
-  folder: string,
   maxBytes: number,
   allowed: Set<string>,
   kindLabel: string,
-): Promise<{ url: string; absolutePath: string }> {
+): { type: string; ext: string; isImage: boolean; isPdf: boolean } {
   if (!file || file.size === 0) {
     throw new Error("No file uploaded");
   }
@@ -52,21 +69,51 @@ async function writeUpload(
   const type = (file.type || "application/octet-stream").toLowerCase();
   const isImage = type.startsWith("image/");
   const isPdf =
-    type === "application/pdf" ||
-    file.name.toLowerCase().endsWith(".pdf");
+    type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
   if (!allowed.has(type) && !isImage && !isPdf) {
     throw new Error(`Only ${kindLabel} are allowed`);
   }
 
   const ext = extFromType(type, file.name || "");
+  return { type, ext, isImage, isPdf };
+}
+
+/**
+ * Upload to Cloudflare R2 when credentials are set; otherwise local public/uploads (dev).
+ * Public URLs always use https://images.mcneelyfamilypoodles.com when using R2.
+ */
+async function writeUpload(
+  file: File,
+  folder: string,
+  maxBytes: number,
+  allowed: Set<string>,
+  kindLabel: string,
+): Promise<{ url: string; absolutePath: string }> {
+  const { ext } = validateFile(file, maxBytes, allowed, kindLabel);
   const name = `${Date.now()}-${randomBytes(6).toString("hex")}.${ext}`;
+  // Normalize folder: "medical/id" → "uploads/medical/id/name"
+  const key = `uploads/${folder.replace(/^\/+|\/+$/g, "")}/${name}`.replace(
+    /\\/g,
+    "/",
+  );
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const contentType = contentTypeFor(file, ext);
+
+  if (isR2Configured()) {
+    const { publicUrl } = await r2PutObject({
+      key,
+      body: buffer,
+      contentType,
+    });
+    return { url: publicUrl, absolutePath: "" };
+  }
+
+  // Local fallback when R2 env is not set (offline / early dev)
   const relDir = path.join("uploads", folder);
   const absDir = path.join(process.cwd(), "public", relDir);
   await mkdir(absDir, { recursive: true });
-
   const absPath = path.join(absDir, name);
-  const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(absPath, buffer);
 
   return {
@@ -76,8 +123,7 @@ async function writeUpload(
 }
 
 /**
- * Save an uploaded image under public/uploads for local/dev use.
- * Production can swap this for S3/R2 later without changing callers.
+ * Save an uploaded image (hero/gallery/CMS). Uses R2 public CDN when configured.
  */
 export async function saveUploadedImage(
   file: File,
@@ -93,7 +139,9 @@ export async function saveUploadedImage(
 }
 
 /**
- * Medical / admin documents: PDF or scanned images (JPEG, PNG, WebP, HEIC, etc.).
+ * Medical / admin documents: PDF or scanned images.
+ * Stored on R2 with the same public base when configured (protect sensitive docs
+ * with R2 private buckets + signed URLs in a future hardening pass if needed).
  */
 export async function saveUploadedDocument(
   file: File,
@@ -110,21 +158,63 @@ export async function saveUploadedDocument(
 
 export function isPdfUrl(url: string | null | undefined): boolean {
   if (!url) return false;
-  return url.toLowerCase().endsWith(".pdf") || url.includes("/pdf");
+  const lower = url.toLowerCase();
+  return lower.endsWith(".pdf") || lower.includes(".pdf?") || lower.includes("/pdf");
 }
 
 export function isImageUrl(url: string | null | undefined): boolean {
   if (!url) return false;
-  return /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(url);
+  if (/\.(jpe?g|png|webp|gif|heic|heif)(\?|$)/i.test(url)) return true;
+  // R2 custom domain images without relying only on extension
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    if (host === "images.mcneelyfamilypoodles.com") return true;
+    if (host === new URL(getR2PublicBaseUrl()).hostname.toLowerCase()) {
+      return !isPdfUrl(url);
+    }
+  } catch {
+    /* relative /uploads paths */
+  }
+  return url.startsWith("/uploads/");
 }
 
-/** Best-effort delete of a local public upload. */
-export async function deleteLocalUpload(url: string) {
-  if (!url.startsWith("/uploads/")) return;
-  const abs = path.join(process.cwd(), "public", url.replace(/^\//, ""));
-  try {
-    await unlink(abs);
-  } catch {
-    // ignore missing files
+/**
+ * Delete an uploaded file from R2 and/or local public disk (best-effort).
+ * Callers may still pass the historical name deleteLocalUpload.
+ */
+export async function deleteUpload(url: string) {
+  if (!url) return;
+
+  const key = objectKeyFromPublicUrl(url);
+  if (key && isR2Configured()) {
+    await r2DeleteObject(key);
   }
+
+  // Local public path cleanup
+  const localPath = url.startsWith("/uploads/")
+    ? url
+    : key && !url.startsWith("http")
+      ? `/${key}`
+      : null;
+
+  if (localPath?.startsWith("/uploads/")) {
+    const abs = path.join(process.cwd(), "public", localPath.replace(/^\//, ""));
+    try {
+      await unlink(abs);
+    } catch {
+      // ignore missing files
+    }
+  }
+}
+
+/** @deprecated Use deleteUpload — kept for existing admin action imports */
+export async function deleteLocalUpload(url: string) {
+  return deleteUpload(url);
+}
+
+/** Base URL for images when using R2 (for docs / UI hints). */
+export function mediaPublicBaseUrl(): string {
+  return isR2Configured()
+    ? getR2PublicBaseUrl()
+    : "(local /uploads — set R2_* env to use https://images.mcneelyfamilypoodles.com)";
 }

@@ -7,6 +7,16 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  images: {
+    // When using next/image; plain <img> already works with absolute R2 URLs
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.mcneelyfamilypoodles.com",
+        pathname: "/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

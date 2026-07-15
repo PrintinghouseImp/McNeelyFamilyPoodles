@@ -97,7 +97,7 @@ Match a **Good Dog (gooddog.com)** clean marketplace feel on **all** public, adm
 | Auth | **Auth.js (NextAuth v5)** | Google + Facebook for customers; credentials for admin |
 | Validation | **Zod** | Forms and APIs |
 | Captcha | **Cloudflare Turnstile** | Free, privacy-friendly bot check |
-| Images | Upload → object storage (S3/R2) in prod; local in dev | Camera photos can be large |
+| Images | **Cloudflare R2** → public CDN `https://images.mcneelyfamilypoodles.com`; local `public/uploads` only if R2 env unset | Camera photos can be large |
 | Email (later) | Resend / similar | Application + deposit notifications |
 
 ### Why PostgreSQL
@@ -297,12 +297,14 @@ VENMO_HANDLE=
 ZELLE_CONTACT=
 PAYPAL_ME_URL=
 
-# Image storage (production)
-S3_BUCKET=
-S3_REGION=
-S3_ACCESS_KEY=
-S3_SECRET_KEY=
+# Cloudflare R2 media (public CDN)
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=
+R2_PUBLIC_URL=https://images.mcneelyfamilypoodles.com
 ```
+
 
 ---
 

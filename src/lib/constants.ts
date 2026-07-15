@@ -8,6 +8,12 @@ export const SITE = {
     "Boutique family-run miniature poodle breeders in the Phoenix area. Health-tested, home-raised companions.",
 } as const;
 
+/** Cloudflare R2 public media CDN (custom domain) */
+export const MEDIA_CDN = {
+  publicUrl: "https://images.mcneelyfamilypoodles.com",
+  host: "images.mcneelyfamilypoodles.com",
+} as const;
+
 /**
  * Visual style (Good Dog–inspired): white background, black lettering,
  * grayscale links and unhighlighted fields. Use color sparingly (e.g. status).

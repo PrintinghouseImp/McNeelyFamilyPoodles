@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { deletePhoto, setPrimaryPhoto } from "@/app/admin/actions/photos";
 import { btnDanger, btnSecondary } from "@/components/admin/field";
 import { PhotoFrame } from "@/components/inventory/photo-frame";
+import { MEDIA_CDN } from "@/lib/constants";
+import { isR2Configured, getR2PublicBaseUrl } from "@/lib/r2";
 
 export const metadata = { title: "Admin · Media" };
 
@@ -20,6 +22,9 @@ export default async function AdminMediaPage() {
     },
   });
 
+  const r2Ready = isR2Configured();
+  const publicBase = r2Ready ? getR2PublicBaseUrl() : MEDIA_CDN.publicUrl;
+
   return (
     <div>
       <h1 className="text-3xl font-semibold tracking-tight text-black">
@@ -28,6 +33,28 @@ export default async function AdminMediaPage() {
       <p className="mt-1 text-gray-500">
         All uploaded photos. Prefer uploading from a dog or litter edit page
         (supports phone camera).
+      </p>
+      <p className="mt-2 text-sm text-gray-500">
+        Storage:{" "}
+        {r2Ready ? (
+          <>
+            Cloudflare R2 · public CDN{" "}
+            <a
+              href={publicBase}
+              className="font-medium text-black underline-offset-2 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {publicBase}
+            </a>
+          </>
+        ) : (
+          <>
+            local <code className="text-xs">public/uploads</code> (set{" "}
+            <code className="text-xs">R2_*</code> env vars to use{" "}
+            {MEDIA_CDN.publicUrl})
+          </>
+        )}
       </p>
 
       {photos.length === 0 ? (

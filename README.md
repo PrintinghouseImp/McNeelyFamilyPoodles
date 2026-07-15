@@ -4,7 +4,7 @@ Full-stack site for a boutique miniature poodle program: public pages, **breeder
 
 See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the confirmed feature list, domain model, and phases.
 
-**Hosting direction:** Netlify as the visual storefront, **Supabase** as the secure Postgres “filing cabinet,” and **ImgBB** for public photo hosting (hotlinked URLs so large image libraries do not bloat the Netlify deploy).
+**Hosting direction:** Netlify as the visual storefront, **Supabase** as the secure Postgres “filing cabinet,” and **Cloudflare R2** for media at **`https://images.mcneelyfamilypoodles.com`** (hotlinked CDN URLs so large libraries do not bloat the Netlify deploy).
 
 ## Brand
 
@@ -34,7 +34,7 @@ Source of truth: `src/lib/constants.ts` (`BRAND`) and `src/app/globals.css`.
 - Next.js 16 (App Router) + React 19
 - **Supabase** (hosted PostgreSQL) + Prisma 7 — Prisma schema/client stay standard Postgres; only `DATABASE_URL` points at Supabase
 - Auth.js (admin credentials + Google/Facebook for customers)
-- **ImgBB** for public image hosting (API key in env; URLs stored in DB)
+- **Cloudflare R2** for images/documents — public CDN `https://images.mcneelyfamilypoodles.com`
 - Zod + Cloudflare Turnstile (planned)
 - Deploy target: **Netlify** (storefront)
 
@@ -44,8 +44,9 @@ Source of truth: `src/lib/constants.ts` (`BRAND`) and `src/app/globals.css`.
 npm install
 cp .env.example .env
 # 1) Paste your Supabase Postgres URI into DATABASE_URL (see below)
-# 2) Set AUTH_SECRET (and optionally IMGBB_API_KEY)
-npx prisma migrate dev
+# 2) Set AUTH_SECRET
+# 3) Set Cloudflare R2 credentials + R2_PUBLIC_URL (see Media section)
+npx prisma migrate deploy
 npm run db:seed
 npm run db:smoke   # print row counts + sample data
 npm run db:studio  # GUI at http://localhost:5555
@@ -81,11 +82,39 @@ This app does **not** use a special Supabase client for core data. Prisma uses a
 
 Prisma stays unchanged: same `schema.prisma`, migrations, and client. Only the host behind `DATABASE_URL` is Supabase.
 
-### ImgBB (public photos)
+### Media: Cloudflare R2 (`images.mcneelyfamilypoodles.com`)
 
-- Get a free API key at [api.imgbb.com](https://api.imgbb.com/).
-- Set `IMGBB_API_KEY` in `.env` (see `.env.example`).
-- Uploads will return a public `https://i.ibb.co/...` URL stored in the database; the site displays that URL so photo binaries are not stored in the Netlify deploy.
+All admin photo and document uploads use **Cloudflare R2** when R2 env vars are set. The app stores **only the public URL** in Postgres (Supabase); browsers load files from the CDN.
+
+| Env var | Purpose |
+|---------|---------|
+| `R2_ACCOUNT_ID` | Cloudflare account id |
+| `R2_ACCESS_KEY_ID` | R2 API token access key |
+| `R2_SECRET_ACCESS_KEY` | R2 API token secret |
+| `R2_BUCKET_NAME` | Bucket name |
+| `R2_PUBLIC_URL` | `https://images.mcneelyfamilypoodles.com` (no trailing slash) |
+
+**Dashboard setup**
+
+1. Cloudflare → **R2** → create a bucket (e.g. `mcneely-media`).
+2. Bucket → **Settings** → **Custom Domains** → attach `images.mcneelyfamilypoodles.com` (DNS is managed in Cloudflare).
+3. **R2 → Manage R2 API Tokens** → create a token with **Object Read & Write** on that bucket.
+4. Copy account id + keys into `.env` / Netlify environment variables (never commit secrets).
+
+**Object key layout**
+
+```text
+https://images.mcneelyfamilypoodles.com/uploads/puppy/<id>/<timestamp>-<hash>.webp
+https://images.mcneelyfamilypoodles.com/uploads/medical/<id>/<timestamp>-<hash>.pdf
+```
+
+**Behavior**
+
+- **R2 configured:** upload → R2 `PutObject` → URL on `images.mcneelyfamilypoodles.com` saved in DB.
+- **R2 not configured:** fallback to local `public/uploads/` (fine for quick local UI tests; not for production/Netlify).
+- **Deletes** in admin remove the R2 object when the stored URL is on the CDN (or a local `/uploads/` path).
+
+Code: `src/lib/r2.ts`, `src/lib/uploads.ts`, `MEDIA_CDN` in `src/lib/constants.ts`.
 
 ### Database notes (migrations)
 

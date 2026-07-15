@@ -25,7 +25,11 @@ export function MedicalFilePreview({
     );
   }
 
-  if (isImageUrl(fileUrl) || fileUrl.startsWith("/uploads/")) {
+  if (
+    isImageUrl(fileUrl) ||
+    fileUrl.startsWith("/uploads/") ||
+    fileUrl.includes("images.mcneelyfamilypoodles.com")
+  ) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
         <PhotoFrame src={fileUrl} alt={title} />

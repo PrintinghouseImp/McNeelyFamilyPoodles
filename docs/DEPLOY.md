@@ -187,6 +187,7 @@ Authorized JavaScript origins / site URL should include `https://mcneelyfamilypo
 | Build: Prisma generate fails | Confirm `npm run build` includes `prisma generate`; Node 20+ |
 | Site 404 on all routes | Next.js runtime not active — ensure project is Next.js (not “static only”) |
 | Auth redirects to localhost | `AUTH_URL` still local — set to production URL and redeploy |
+| Admin/portal: `nextHandler is not a function` | Next.js 16 `proxy.ts` breaks Netlify OpenNext. **Do not re-add edge/proxy middleware** for auth; layouts use `requireAdmin` / `requirePortalUser` instead. |
 | OAuth error `redirect_uri_mismatch` | Add production callback URLs in Google/Facebook |
 | Cloudflare 525/526 | SSL mode Full/Full strict; wait for Netlify cert; try grey-cloud briefly |
 | Uploads fail on Netlify | R2 env vars missing; local `public/uploads` does not work on Netlify |

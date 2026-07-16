@@ -247,6 +247,7 @@ Middleware enforces:
 | Apply / deposit request | Customer | Google or Facebook OAuth |
 | Email signup (if enabled) | Customer | Password + **Turnstile** captcha |
 | View own dog documents | Customer (owner) | OAuth session after admin **ownership grant** |
+| Route protection | Layout + server actions (`requireAdmin` / `requirePortalUser`) | **No** Next.js proxy/middleware on Netlify (OpenNext incompatibility) |
 | View puppy medical records (portal vault) | Customer (owner of that puppy) | Same Phase 4 `MedicalRecord` rows for that puppy |
 | View any medical record (full admin UI) | Admin only | Admin session |
 | Parent medical records | Admin only | Not exposed via ownership (owners are linked to puppies) |

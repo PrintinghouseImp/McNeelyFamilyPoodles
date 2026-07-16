@@ -1,15 +1,32 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 import { isPortalRole } from "@/lib/portal";
 
 /**
  * Next.js 16 proxy (formerly middleware).
  * - /admin/* → ADMIN only (except login)
  * - /portal/* → CUSTOMER or ADMIN (except login)
+ *
+ * Uses getToken (JWT) instead of the auth() wrapper so Netlify/OpenNext
+ * receives a normal async request handler ("nextHandler is not a function").
  */
-export const proxy = auth((req) => {
+export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const role = req.auth?.user?.role;
+
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    // Auth.js v5 cookie names; secure prefix on HTTPS (Netlify)
+    secureCookie: req.nextUrl.protocol === "https:",
+  });
+
+  const role =
+    typeof token?.role === "string"
+      ? token.role
+      : typeof (token as { role?: string } | null)?.role === "string"
+        ? (token as { role: string }).role
+        : undefined;
 
   // ── Admin ──────────────────────────────────────────────────────────────
   if (path.startsWith("/admin")) {
@@ -43,7 +60,8 @@ export const proxy = auth((req) => {
       if (allowed) {
         const callback = req.nextUrl.searchParams.get("callbackUrl");
         const dest =
-          callback?.startsWith("/portal") && !callback.startsWith("/portal/login")
+          callback?.startsWith("/portal") &&
+          !callback.startsWith("/portal/login")
             ? callback
             : "/portal";
         return NextResponse.redirect(new URL(dest, req.nextUrl.origin));
@@ -61,7 +79,7 @@ export const proxy = auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/admin/:path*", "/portal/:path*"],

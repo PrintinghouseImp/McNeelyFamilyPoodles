@@ -3,6 +3,9 @@ import { adminLogout } from "@/app/admin/actions/auth";
 import { requireAdmin } from "@/lib/admin";
 import { ADMIN_NAV, SITE } from "@/lib/constants";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminDashboardLayout({
   children,
 }: {

@@ -1,4 +1,11 @@
 /**
+ * All /portal/* routes must be dynamic on Netlify/OpenNext.
+ * Prerendered portal pages caused "nextHandler is not a function" at runtime.
+ */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+/**
  * Root portal layout — login is unauthenticated; (app) group adds chrome + auth.
  */
 export default function PortalRootLayout({

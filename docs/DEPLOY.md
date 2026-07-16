@@ -39,7 +39,8 @@ Never commit real values to git.
 |----------|-----------------|
 | `DATABASE_URL` | Supabase **Session or Transaction pooler** URI (`sslmode` as you use locally) |
 | `AUTH_SECRET` | Long random string (`openssl rand -base64 32`) |
-| `AUTH_URL` | First deploy: `https://<site-name>.netlify.app` — then change to `https://mcneelyfamilypoodles.com` after DNS |
+| `AUTH_URL` | **Required.** `https://candid-begonia-df9022.netlify.app` (no trailing slash). After custom domain: `https://mcneelyfamilypoodles.com` |
+| `NEXTAUTH_URL` | Optional alias of `AUTH_URL` (same value) — set if Auth.js still mis-detects host |
 | `ADMIN_EMAIL` | Admin email used at seed time |
 | `ADMIN_PASSWORD` | **Strong** password (not `password`) if you re-seed; live admin is already in DB after seed |
 | `ADMIN_NAME` | Display name |
@@ -187,7 +188,8 @@ Authorized JavaScript origins / site URL should include `https://mcneelyfamilypo
 | Build: Prisma generate fails | Confirm `npm run build` includes `prisma generate`; Node 20+ |
 | Site 404 on all routes | Next.js runtime not active — ensure project is Next.js (not “static only”) |
 | Auth redirects to localhost | `AUTH_URL` still local — set to production URL and redeploy |
-| Admin/portal: `nextHandler is not a function` | Next.js 16 `proxy.ts` breaks Netlify OpenNext. **Do not re-add edge/proxy middleware** for auth; layouts use `requireAdmin` / `requirePortalUser` instead. |
+| Admin/portal: `nextHandler is not a function` | (1) Do **not** use `proxy.ts`/`middleware.ts` for auth. (2) Admin/portal routes must be **`force-dynamic`** (prerender breaks OpenNext). (3) Clear deploy cache and redeploy. (4) Check `/api/health` for env flags. |
+| Login page blank / OAuth missing | Set `AUTH_GOOGLE_*` on Netlify; set `AUTH_URL=https://your-site.netlify.app` (no trailing slash) |
 | OAuth error `redirect_uri_mismatch` | Add production callback URLs in Google/Facebook |
 | Cloudflare 525/526 | SSL mode Full/Full strict; wait for Netlify cert; try grey-cloud briefly |
 | Uploads fail on Netlify | R2 env vars missing; local `public/uploads` does not work on Netlify |

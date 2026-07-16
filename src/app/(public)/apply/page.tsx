@@ -7,6 +7,9 @@ import { db } from "@/lib/db";
 import { isPortalRole } from "@/lib/portal";
 import { formatPuppyStatus } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Application",
   description: "Apply for a McNeely Family Poodles puppy.",

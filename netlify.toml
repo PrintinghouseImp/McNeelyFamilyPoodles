@@ -1,27 +1,26 @@
 # Netlify — McNeely Family Poodles (Next.js App Router)
 # https://docs.netlify.com/build/frameworks/framework-setup-guides/nextjs/overview/
-#
-# Netlify auto-installs the Next.js runtime (OpenNext). Prefer not pinning
-# @netlify/plugin-nextjs so builds get the latest compatible adapter.
 
 [build]
   command = "npm run build"
-  # Next.js runtime manages publish output; leave publish unset / default.
 
 [build.environment]
-  # Match a current LTS; Prisma + Next 16 need a modern Node.
   NODE_VERSION = "22"
-  # Ensure Prisma client is generated during build (also in package.json "build")
-  # NPM_FLAGS = "--legacy-peer-deps"
+  # Avoid stale Next ISR/prerender edge cases for auth routes
+  NEXT_PRIVATE_TARGET = "server"
+
+# Explicit Next.js runtime (OpenNext). Keeps adapter version aligned with deps.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # Redirect www → apex (domain: mcneelyfamilypoodles.com)
-# Enable after both hostnames are attached in Netlify Domain management.
 [[redirects]]
   from = "https://www.mcneelyfamilypoodles.com/*"
   to = "https://mcneelyfamilypoodles.com/:splat"
   status = 301
   force = true
 
-# Optional: longer function timeout for large photo/medical uploads (plan limits apply)
 [functions]
   node_bundler = "esbuild"
+  # Allow larger photo/medical uploads via Server Actions (plan limits still apply)
+  included_files = ["src/generated/prisma/**"]

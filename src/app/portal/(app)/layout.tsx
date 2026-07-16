@@ -3,6 +3,9 @@ import { portalLogout } from "@/app/portal/actions";
 import { PORTAL_NAV, SITE } from "@/lib/constants";
 import { requirePortalUser } from "@/lib/portal";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function PortalAppLayout({
   children,
 }: {

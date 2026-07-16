@@ -14,22 +14,58 @@ const credentialsSchema = z.object({
 });
 
 const googleEnabled = Boolean(
-  process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
+  process.env.AUTH_GOOGLE_ID?.trim() && process.env.AUTH_GOOGLE_SECRET?.trim(),
 );
 const facebookEnabled = Boolean(
-  process.env.AUTH_FACEBOOK_ID && process.env.AUTH_FACEBOOK_SECRET,
+  process.env.AUTH_FACEBOOK_ID?.trim() &&
+    process.env.AUTH_FACEBOOK_SECRET?.trim(),
 );
 
 /**
- * Auth.js config
+ * Production origin for Auth.js cookies / redirects.
+ * Prefer AUTH_URL; fall back to Netlify's deployed URL when unset.
+ */
+function resolveAuthUrl(): string | undefined {
+  const explicit = process.env.AUTH_URL?.trim() || process.env.NEXTAUTH_URL?.trim();
+  if (explicit) return explicit.replace(/\/$/, "");
+
+  // Netlify provides deploy URL without protocol sometimes as URL / DEPLOY_PRIME_URL
+  const netlify =
+    process.env.URL?.trim() ||
+    process.env.DEPLOY_PRIME_URL?.trim() ||
+    process.env.DEPLOY_URL?.trim();
+  if (netlify) {
+    return netlify.replace(/\/$/, "");
+  }
+  return undefined;
+}
+
+const authUrl = resolveAuthUrl();
+if (authUrl && !process.env.AUTH_URL) {
+  // Auth.js reads AUTH_URL / NEXTAUTH_URL from env at runtime
+  process.env.AUTH_URL = authUrl;
+}
+if (authUrl && !process.env.NEXTAUTH_URL) {
+  process.env.NEXTAUTH_URL = authUrl;
+}
+
+/**
+ * Auth.js (next-auth v5) — JWT sessions for serverless (Netlify).
  * - Admin: username + password (credentials) — username "admin"
  * - Customers: Google / Facebook OAuth → role CUSTOMER
+ *
+ * Adapter persists OAuth users/accounts; session strategy stays JWT
+ * so edge-less Node functions don't need DB sessions on every request.
  */
 export const { handlers, auth, signIn, signOut } = NextAuth({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Auth adapter accepts Prisma client
   adapter: PrismaAdapter(db as any),
+  secret: process.env.AUTH_SECRET,
   trustHost: true,
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   pages: {
     signIn: "/portal/login",
     error: "/portal/login",
@@ -93,7 +129,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user.id) return true;
         const existing = await db.user.findUnique({ where: { id: user.id } });
         if (existing?.role === "ADMIN") {
-          // Keep admin role if this Google/Facebook account is already the admin user
           return true;
         }
         if (existing && existing.role !== "CUSTOMER") {
@@ -122,8 +157,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      // OAuth first login: adapter created user; load role
-      if (account && (account.provider === "google" || account.provider === "facebook")) {
+      if (
+        account &&
+        (account.provider === "google" || account.provider === "facebook")
+      ) {
         if (token.sub) {
           const dbUser = await db.user.findUnique({
             where: { id: token.sub },
@@ -136,7 +173,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      // Refresh role from DB occasionally (e.g. after admin promotion)
       if (trigger === "update" && token.sub) {
         const dbUser = await db.user.findUnique({
           where: { id: token.sub },

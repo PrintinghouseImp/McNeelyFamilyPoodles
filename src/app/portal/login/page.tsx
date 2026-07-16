@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import {
   signInWithFacebook,
   signInWithGoogle,
 } from "@/app/portal/actions";
-import { auth, oauthProviders } from "@/lib/auth";
-import { isPortalRole } from "@/lib/portal";
+import { oauthProviders } from "@/lib/auth";
 import { SITE } from "@/lib/constants";
 import { btnPrimary, btnSecondary } from "@/components/admin/field";
+
+/** Never prerender — Netlify OpenNext breaks prerendered auth pages. */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Customer sign in",
@@ -17,12 +19,11 @@ type Props = {
   searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 };
 
+/**
+ * Login UI only — no server-side auth() call (avoids broken prerender handlers).
+ * OAuth providers are read from env at request time via oauthProviders.
+ */
 export default async function PortalLoginPage({ searchParams }: Props) {
-  const session = await auth();
-  if (session?.user && isPortalRole(session.user.role)) {
-    redirect("/portal");
-  }
-
   const params = await searchParams;
   const callbackUrl =
     params.callbackUrl?.startsWith("/portal") &&
@@ -38,6 +39,10 @@ export default async function PortalLoginPage({ searchParams }: Props) {
         : null;
 
   const anyOAuth = oauthProviders.google || oauthProviders.facebook;
+  const publicOrigin =
+    process.env.AUTH_URL?.replace(/\/$/, "") ||
+    process.env.URL?.replace(/\/$/, "") ||
+    "http://localhost:3000";
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-6">
@@ -75,7 +80,7 @@ export default async function PortalLoginPage({ searchParams }: Props) {
               type="button"
               disabled
               className={`${btnPrimary} w-full cursor-not-allowed opacity-40`}
-              title="Set AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET in .env"
+              title="Set AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET in Netlify env"
             >
               Continue with Google
             </button>
@@ -93,7 +98,7 @@ export default async function PortalLoginPage({ searchParams }: Props) {
               type="button"
               disabled
               className={`${btnSecondary} w-full cursor-not-allowed opacity-40`}
-              title="Set AUTH_FACEBOOK_ID and AUTH_FACEBOOK_SECRET in .env"
+              title="Set AUTH_FACEBOOK_ID and AUTH_FACEBOOK_SECRET in Netlify env"
             >
               Continue with Facebook
             </button>
@@ -105,14 +110,11 @@ export default async function PortalLoginPage({ searchParams }: Props) {
             <p className="font-medium">OAuth not configured yet</p>
             <p className="mt-1 text-amber-800/90">
               Add <code className="text-xs">AUTH_GOOGLE_ID</code> /{" "}
-              <code className="text-xs">AUTH_GOOGLE_SECRET</code> and/or
-              Facebook keys to <code className="text-xs">.env</code>, then
-              restart the dev server. Create OAuth apps in Google Cloud Console
-              and Meta for Developers with redirect URI:
+              <code className="text-xs">AUTH_GOOGLE_SECRET</code> (and/or
+              Facebook keys) in Netlify environment variables. Redirect URI:
             </p>
             <p className="mt-2 break-all font-mono text-xs text-amber-950">
-              {process.env.AUTH_URL ?? "http://localhost:3000"}
-              /api/auth/callback/google
+              {publicOrigin}/api/auth/callback/google
             </p>
           </div>
         ) : null}

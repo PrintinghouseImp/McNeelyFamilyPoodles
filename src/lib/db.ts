@@ -24,7 +24,10 @@ function createPool(connectionString: string) {
   return new Pool({
     connectionString: url,
     ssl: isSupabase ? { rejectUnauthorized: false } : undefined,
-    max: 10,
+    // Serverless: keep pool small; Netlify reuses warm isolates
+    max: 5,
+    idleTimeoutMillis: 20_000,
+    connectionTimeoutMillis: 15_000,
   });
 }
 
@@ -35,9 +38,7 @@ function createPrismaClient() {
   }
 
   const pool = globalForPrisma.pgPool ?? createPool(connectionString);
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.pgPool = pool;
-  }
+  globalForPrisma.pgPool = pool;
 
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
@@ -45,6 +46,5 @@ function createPrismaClient() {
 
 export const db = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = db;
-}
+// Reuse client across warm serverless invocations (Netlify / Node)
+globalForPrisma.prisma = db;

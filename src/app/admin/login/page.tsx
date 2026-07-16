@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { AdminLoginForm } from "@/components/admin/login-form";
-import { auth } from "@/lib/auth";
+
+/** Never prerender — Netlify OpenNext breaks prerendered auth pages. */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Admin Login",
@@ -11,15 +13,17 @@ type Props = {
   searchParams: Promise<{ callbackUrl?: string }>;
 };
 
+/**
+ * Login UI only — no server-side auth() call.
+ * Session redirect after sign-in is handled by Auth.js redirectTo + dashboard layout.
+ */
 export default async function AdminLoginPage({ searchParams }: Props) {
-  const session = await auth();
-  if (session?.user?.role === "ADMIN") {
-    redirect("/admin");
-  }
-
   const params = await searchParams;
   const callbackUrl =
-    params.callbackUrl?.startsWith("/admin") ? params.callbackUrl : "/admin";
+    params.callbackUrl?.startsWith("/admin") &&
+    !params.callbackUrl.startsWith("/admin/login")
+      ? params.callbackUrl
+      : "/admin";
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-6">

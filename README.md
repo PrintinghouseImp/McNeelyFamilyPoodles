@@ -121,6 +121,17 @@ Code: `src/lib/r2.ts`, `src/lib/uploads.ts`, `MEDIA_CDN` in `src/lib/constants.t
 - Migrations live under `prisma/migrations/` (`init`, `forever_homes`, …).
 - Seed creates admin + sample Froggie/Arsibalt litter + Pepper (set a strong `ADMIN_PASSWORD` before seeding production).
 
+### Deploy (Netlify + Cloudflare)
+
+Production site: **`https://mcneelyfamilypoodles.com`**  
+Media CDN: **`https://images.mcneelyfamilypoodles.com`** (R2)
+
+Step-by-step (env vars, Netlify import, Cloudflare DNS, OAuth callbacks, SSL):
+
+→ **[docs/DEPLOY.md](docs/DEPLOY.md)**
+
+Config file: `netlify.toml` (Node 22, build command, www → apex redirect).
+
 
 ## Scripts
 

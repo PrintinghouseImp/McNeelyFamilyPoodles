@@ -4,7 +4,6 @@ import {
   updateSocialSettings,
 } from "@/app/admin/actions/cms";
 import {
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,

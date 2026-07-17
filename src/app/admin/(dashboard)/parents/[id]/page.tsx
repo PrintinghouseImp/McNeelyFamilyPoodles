@@ -14,7 +14,6 @@ import {
   Field,
 } from "@/components/admin/field";
 import { SubmitButton } from "@/components/admin/submit-button";
-// btnPrimary still used for medical records link
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 

@@ -66,7 +66,7 @@ export default async function NewParentPage() {
         </label>
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input type="checkbox" name="isRetired" className={checkClass} />
-          Retired
+          Retired — show on Alumni (removes from main Parents list)
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
           <button type="submit" className={btnPrimary}>

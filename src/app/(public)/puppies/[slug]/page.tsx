@@ -69,7 +69,8 @@ export default async function PuppyDetailPage({ params }: Props) {
   ].filter(Boolean) as { label: string; value: string }[];
 
   const canApply =
-    puppy.status === "AVAILABLE" || puppy.status === "GUARDIANSHIP";
+    !puppy.isAdopted &&
+    (puppy.status === "AVAILABLE" || puppy.status === "GUARDIANSHIP");
 
   return (
     <>
@@ -102,8 +103,14 @@ export default async function PuppyDetailPage({ params }: Props) {
           </div>
 
           <div>
-            <div className="mb-4">
-              <StatusBadge status={puppy.status} />
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              {puppy.isAdopted ? (
+                <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-gray-600 ring-1 ring-inset ring-gray-200">
+                  Adopted · Alumni
+                </span>
+              ) : (
+                <StatusBadge status={puppy.status} />
+              )}
             </div>
 
             <dl className="grid grid-cols-2 gap-3">

@@ -57,10 +57,15 @@ export default async function AdminPuppiesPage() {
                     {!p.isPublished ? (
                       <span className="ml-2 text-xs text-gray-400">Draft</span>
                     ) : null}
+                    {p.isAdopted ? (
+                      <span className="ml-2 text-xs text-gray-500">Alumni</span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{formatSex(p.sex)}</td>
                   <td className="px-4 py-3 text-gray-600">
-                    {formatPuppyStatus(p.status)}
+                    {p.isAdopted
+                      ? "Adopted"
+                      : formatPuppyStatus(p.status)}
                   </td>
                   <td className="px-4 py-3 text-gray-600">
                     {formatPuppyPrice(p.priceCents, p.priceLabel) ?? "—"}

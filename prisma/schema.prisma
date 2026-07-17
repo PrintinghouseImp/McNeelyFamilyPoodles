@@ -145,6 +145,8 @@ model Puppy {
   priceLabel   String?
   description  String?     @db.Text
   birthDate    DateTime?
+  /// When true, shown on Alumni (Adopted Puppies) instead of main Puppies list
+  isAdopted    Boolean     @default(false)
   isPublished  Boolean     @default(true)
   sortOrder    Int         @default(0)
   litterId     String?
@@ -159,6 +161,7 @@ model Puppy {
   updatedAt    DateTime    @updatedAt
 
   @@index([status, isPublished])
+  @@index([isAdopted, isPublished])
   @@index([litterId])
 }
 

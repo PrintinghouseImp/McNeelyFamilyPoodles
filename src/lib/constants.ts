@@ -50,6 +50,7 @@ export const HEADER_NAV = [
  * Extra public links — footer only (not in header).
  */
 export const FOOTER_MORE_LINKS = [
+  { href: "/alumni", label: "Alumni" },
   { href: "/forever-homes", label: "Forever Homes" },
   { href: "/articles", label: "Articles" },
   { href: "/shop", label: "Shop" },

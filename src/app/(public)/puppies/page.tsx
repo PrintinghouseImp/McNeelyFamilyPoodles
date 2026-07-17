@@ -11,18 +11,24 @@ export const metadata = {
     "Browse puppies by litter. Each puppy links back to sire and dam.",
 };
 
+/** Active inventory only — adopted puppies are listed on /alumni */
+const activePuppyWhere = {
+  isPublished: true,
+  isAdopted: false,
+} as const;
+
 export default async function PuppiesPage() {
   const litters = await db.litter.findMany({
     where: {
       isPublished: true,
-      puppies: { some: { isPublished: true } },
+      puppies: { some: activePuppyWhere },
     },
     orderBy: { birthDate: "desc" },
     include: {
       dam: { select: { slug: true, name: true } },
       sire: { select: { slug: true, name: true } },
       puppies: {
-        where: { isPublished: true },
+        where: activePuppyWhere,
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
         include: {
           photos: {
@@ -35,7 +41,7 @@ export default async function PuppiesPage() {
   });
 
   const unassigned = await db.puppy.findMany({
-    where: { isPublished: true, litterId: null },
+    where: { ...activePuppyWhere, litterId: null },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     include: {
       photos: {
@@ -56,7 +62,14 @@ export default async function PuppiesPage() {
       <SectionShell>
         {!hasAny ? (
           <p className="mx-auto max-w-2xl text-center text-gray-500">
-            No puppies are published right now. Check back soon, or{" "}
+            No puppies are available right now. Check back soon, browse{" "}
+            <Link
+              href="/alumni"
+              className="text-gray-700 underline-offset-2 hover:text-black hover:underline"
+            >
+              Alumni
+            </Link>
+            , or{" "}
             <Link
               href="/apply"
               className="text-gray-700 underline-offset-2 hover:text-black hover:underline"
@@ -116,6 +129,16 @@ export default async function PuppiesPage() {
                 </div>
               </section>
             ) : null}
+
+            <p className="text-center text-sm text-gray-500">
+              Looking for past placements?{" "}
+              <Link
+                href="/alumni"
+                className="text-gray-700 underline-offset-2 hover:text-black hover:underline"
+              >
+                Visit Alumni →
+              </Link>
+            </p>
           </div>
         )}
       </SectionShell>

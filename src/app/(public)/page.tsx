@@ -8,6 +8,7 @@ export default async function HomePage() {
   const available = await db.puppy.findMany({
     where: {
       isPublished: true,
+      isAdopted: false,
       status: { in: ["AVAILABLE", "GUARDIANSHIP"] },
     },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],

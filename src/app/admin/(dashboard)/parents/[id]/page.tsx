@@ -138,7 +138,7 @@ export default async function EditParentPage({ params }: Props) {
             defaultChecked={parent.isRetired}
             className={checkClass}
           />
-          Retired
+          Retired — show on Alumni (removes from main Parents list)
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
           <button type="submit" className={btnPrimary}>

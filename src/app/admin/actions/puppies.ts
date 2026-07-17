@@ -20,6 +20,7 @@ const STATUSES = new Set<string>(Object.values(PuppyStatus));
 function revalidatePuppies(slug?: string) {
   revalidatePath("/admin/puppies");
   revalidatePath("/puppies");
+  revalidatePath("/alumni");
   revalidatePath("/");
   if (slug) revalidatePath(`/puppies/${slug}`);
 }
@@ -44,18 +45,25 @@ export async function createPuppy(formData: FormData) {
 
   const litterId = optionalStr(formData, "litterId");
 
+  const isAdopted = bool(formData, "isAdopted");
+  // Adopted puppies belong on Alumni; keep status aligned with SOLD when adopting
+  const resolvedStatus: PuppyStatus = isAdopted
+    ? ("SOLD" as PuppyStatus)
+    : status;
+
   const puppy = await db.puppy.create({
     data: {
       name,
       slug,
       sex,
-      status,
+      status: resolvedStatus,
       color: optionalStr(formData, "color"),
       priceCents: dollarsToCents(formData, "priceDollars"),
       priceLabel: optionalStr(formData, "priceLabel"),
       description: optionalStr(formData, "description"),
       birthDate: dateOnly(formData, "birthDate"),
       litterId,
+      isAdopted,
       isPublished: bool(formData, "isPublished"),
       sortOrder: num(formData, "sortOrder") ?? 0,
     },
@@ -91,6 +99,11 @@ export async function updatePuppy(formData: FormData) {
   }
 
   const litterId = optionalStr(formData, "litterId");
+  const isAdopted = bool(formData, "isAdopted");
+  // Checking Adopted moves the puppy to Alumni and sets status Sold
+  const resolvedStatus: PuppyStatus = isAdopted
+    ? ("SOLD" as PuppyStatus)
+    : status;
 
   await db.puppy.update({
     where: { id },
@@ -98,13 +111,14 @@ export async function updatePuppy(formData: FormData) {
       name,
       slug,
       sex,
-      status,
+      status: resolvedStatus,
       color: optionalStr(formData, "color"),
       priceCents: dollarsToCents(formData, "priceDollars"),
       priceLabel: optionalStr(formData, "priceLabel"),
       description: optionalStr(formData, "description"),
       birthDate: dateOnly(formData, "birthDate"),
       litterId,
+      isAdopted,
       isPublished: bool(formData, "isPublished"),
       sortOrder: num(formData, "sortOrder") ?? 0,
     },

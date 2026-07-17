@@ -11,6 +11,7 @@ import { slugify, uniqueSlug } from "@/lib/slug";
 function revalidateParents(slug?: string) {
   revalidatePath("/admin/parents");
   revalidatePath("/parents");
+  revalidatePath("/alumni");
   revalidatePath("/");
   if (slug) revalidatePath(`/parents/${slug}`);
 }

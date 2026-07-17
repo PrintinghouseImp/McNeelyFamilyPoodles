@@ -94,6 +94,10 @@ export default async function NewPuppyPage() {
           <input type="checkbox" name="isPublished" defaultChecked className={checkClass} />
           Published on public site
         </label>
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" name="isAdopted" className={checkClass} />
+          Adopted — show on Alumni (removes from main Puppies list)
+        </label>
         <div className="flex flex-wrap gap-3 pt-2">
           <button type="submit" className={btnPrimary}>
             Create puppy

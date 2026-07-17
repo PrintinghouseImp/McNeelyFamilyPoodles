@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ParentCard } from "@/components/inventory/parent-card";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
@@ -9,8 +10,9 @@ export const metadata = {
 };
 
 export default async function ParentsPage() {
+  // Active breeding dogs only — retired parents live on /alumni
   const parents = await db.parentDog.findMany({
-    where: { isPublished: true },
+    where: { isPublished: true, isRetired: false },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     include: {
       photos: {
@@ -32,7 +34,15 @@ export default async function ParentsPage() {
       <SectionShell>
         {parents.length === 0 ? (
           <p className="mx-auto max-w-2xl text-center text-gray-500">
-            Parent profiles will appear here once they are published.
+            Active parent profiles will appear here once they are published.
+            Retired dogs are listed on{" "}
+            <Link
+              href="/alumni"
+              className="text-gray-700 underline-offset-2 hover:text-black hover:underline"
+            >
+              Alumni
+            </Link>
+            .
           </p>
         ) : (
           <div className="space-y-14">
@@ -57,6 +67,16 @@ export default async function ParentsPage() {
                 </div>
               </section>
             ) : null}
+
+            <p className="text-center text-sm text-gray-500">
+              Looking for retired parents?{" "}
+              <Link
+                href="/alumni"
+                className="text-gray-700 underline-offset-2 hover:text-black hover:underline"
+              >
+                Visit Alumni →
+              </Link>
+            </p>
           </div>
         )}
       </SectionShell>

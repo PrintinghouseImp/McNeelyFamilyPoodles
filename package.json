@@ -13,7 +13,9 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:smoke": "node scripts/db-smoke.mjs",
-    "db:ensure": "node scripts/ensure-db.mjs"
+    "db:ensure": "node scripts/ensure-db.mjs",
+    "db:set-admin-password": "node scripts/set-admin-password.mjs",
+    "db:verify-admin": "node scripts/verify-admin-login.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   AlumniDogCard,
-  buildHealthMarkers,
   formatSex,
 } from "@/components/inventory/alumni-dog-card";
 import {
@@ -38,7 +37,7 @@ export default async function AlumniPage({ searchParams }: Props) {
       include: {
         photos: {
           orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
-          take: 6,
+          take: 1,
         },
       },
     }),
@@ -48,12 +47,12 @@ export default async function AlumniPage({ searchParams }: Props) {
       include: {
         photos: {
           orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
-          take: 6,
+          take: 1,
         },
         litter: {
           include: {
-            dam: { select: { name: true, genetics: true } },
-            sire: { select: { name: true, genetics: true } },
+            dam: { select: { name: true } },
+            sire: { select: { name: true } },
           },
         },
       },
@@ -75,8 +74,7 @@ export default async function AlumniPage({ searchParams }: Props) {
       <SectionShell>
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-2xl text-sm text-gray-500">
-            Dogs who helped build our program or found their families. Active
-            sires, dams, and available puppies stay on{" "}
+            Here are some of the poodles who helped build our program and puppies who found their families! Looking for active {" "}
             <Link
               href="/parents"
               className="text-gray-700 underline-offset-2 hover:text-black hover:underline"
@@ -90,7 +88,7 @@ export default async function AlumniPage({ searchParams }: Props) {
             >
               Puppies
             </Link>
-            .
+            ?
           </p>
           <AlumniFilters
             view={view}
@@ -135,15 +133,8 @@ export default async function AlumniPage({ searchParams }: Props) {
                         href={`/parents/${parent.slug}`}
                         name={parent.name}
                         badge="Retired"
-                        sexLabel={`${formatSex(parent.sex)} · ${parent.sex === "MALE" ? "Sire" : "Dam"}`}
+                        sexLabel={formatSex(parent.sex)}
                         color={parent.color}
-                        genetics={parent.genetics}
-                        healthMarkers={buildHealthMarkers({
-                          genetics: parent.genetics,
-                          weightLbs: parent.weightLbs,
-                          heightInches: parent.heightInches,
-                          isParent: true,
-                        })}
                         note={parent.description}
                         photos={parent.photos}
                       />
@@ -176,38 +167,18 @@ export default async function AlumniPage({ searchParams }: Props) {
                   </p>
                 ) : (
                   <div className="space-y-8">
-                    {adoptedPuppies.map((puppy) => {
-                      const litterGenetics = [
-                        puppy.litter?.dam.genetics,
-                        puppy.litter?.sire.genetics,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ");
-                      const parentNote = puppy.litter
-                        ? `Dam: ${puppy.litter.dam.name} · Sire: ${puppy.litter.sire.name}`
-                        : null;
-                      const note = [puppy.description, parentNote]
-                        .filter(Boolean)
-                        .join("\n\n");
-
-                      return (
-                        <AlumniDogCard
-                          key={puppy.id}
-                          href={`/puppies/${puppy.slug}`}
-                          name={puppy.name}
-                          badge="Adopted"
-                          sexLabel={formatSex(puppy.sex)}
-                          color={puppy.color}
-                          genetics={litterGenetics || puppy.color}
-                          healthMarkers={buildHealthMarkers({
-                            genetics: litterGenetics || null,
-                            isParent: false,
-                          })}
-                          note={note || null}
-                          photos={puppy.photos}
-                        />
-                      );
-                    })}
+                    {adoptedPuppies.map((puppy) => (
+                      <AlumniDogCard
+                        key={puppy.id}
+                        href={`/puppies/${puppy.slug}`}
+                        name={puppy.name}
+                        badge="Adopted"
+                        sexLabel={formatSex(puppy.sex)}
+                        color={puppy.color}
+                        note={puppy.description}
+                        photos={puppy.photos}
+                      />
+                    ))}
                   </div>
                 )}
               </section>

@@ -191,46 +191,49 @@ export function GeneticsEditor({ geneticsData, geneticsText }: Props) {
                   />
                 </label>
 
-                <div className="min-w-0 space-y-2">
-                  <span className="block text-xs text-gray-400">
+                <div className="min-w-0">
+                  <span className="mb-1 block text-xs text-gray-400">
                     Result / alleles
                   </span>
                   {alleleOptions.length > 0 ? (
                     <select
-                      value={valueInList ? entry.value : ""}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (v) updateEntry(entry.id, { value: v });
-                      }}
+                      value={
+                        valueInList
+                          ? entry.value
+                          : entry.value
+                            ? entry.value
+                            : ""
+                      }
+                      onChange={(e) =>
+                        updateEntry(entry.id, { value: e.target.value })
+                      }
                       className={selectClass}
-                      aria-label={`Common results for ${entry.label}`}
+                      aria-label={`Result for ${entry.label}`}
                     >
                       <option value="">
-                        {entry.value && !valueInList
-                          ? "Custom value (see below) — or pick a common result…"
-                          : "Pick a common result / allele combo…"}
+                        Pick a common result / allele combo…
                       </option>
                       {alleleOptions.map((opt) => (
                         <option key={opt} value={opt}>
                           {opt}
                         </option>
                       ))}
+                      {/* Preserve a previously saved custom value not in the list */}
+                      {entry.value && !valueInList ? (
+                        <option value={entry.value}>{entry.value}</option>
+                      ) : null}
                     </select>
-                  ) : null}
-                  <input
-                    value={entry.value}
-                    onChange={(e) =>
-                      updateEntry(entry.id, { value: e.target.value })
-                    }
-                    className={inputClass}
-                    placeholder={
-                      preset?.valueHint ??
-                      (alleleOptions.length
-                        ? "Or type a custom result…"
-                        : "e.g. B/b, Clear")
-                    }
-                    aria-label={`Result value for ${entry.label || "gene"}`}
-                  />
+                  ) : (
+                    <input
+                      value={entry.value}
+                      onChange={(e) =>
+                        updateEntry(entry.id, { value: e.target.value })
+                      }
+                      className={inputClass}
+                      placeholder={preset?.valueHint ?? "e.g. B/b, Clear"}
+                      aria-label={`Result value for ${entry.label || "gene"}`}
+                    />
+                  )}
                 </div>
 
                 <button

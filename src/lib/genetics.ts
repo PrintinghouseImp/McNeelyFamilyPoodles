@@ -22,33 +22,244 @@ export type GeneticsData = {
   notes?: string;
 };
 
-/** Common miniature poodle / color genetics suggestions for admin multi-select. */
-export const GENETICS_PRESETS: {
+export type GeneticsPreset = {
   id: string;
   label: string;
   category: string;
-  /** Placeholder hint for the value field */
+  /** Placeholder hint for free-text entry */
   valueHint?: string;
-}[] = [
-  { id: "a-locus", label: "A locus (Agouti)", category: "Locus", valueHint: "e.g. Ay/at, at/at, a/a" },
-  { id: "b-locus", label: "B locus (Black/Brown)", category: "Locus", valueHint: "e.g. B/B, B/b, b/b" },
-  { id: "d-locus", label: "D locus (Dilute)", category: "Locus", valueHint: "e.g. D/D, D/d, d/d" },
-  { id: "e-locus", label: "E locus (Extension)", category: "Locus", valueHint: "e.g. E/E, E/e, e/e" },
-  { id: "k-locus", label: "K locus (Dominant black)", category: "Locus", valueHint: "e.g. KB/ky, ky/ky" },
-  { id: "s-locus", label: "S locus (Spotting / white)", category: "Locus", valueHint: "e.g. S/S, S/sp, sp/sp" },
-  { id: "m-locus", label: "M locus (Merle)", category: "Pattern", valueHint: "e.g. m/m, M/m, Mh/m" },
-  { id: "parti", label: "Parti", category: "Pattern", valueHint: "e.g. carrier, expressed" },
-  { id: "phantom", label: "Phantom", category: "Pattern", valueHint: "e.g. at/at related phantom" },
-  { id: "abstract", label: "Abstract / mismark", category: "Pattern", valueHint: "e.g. abstract white" },
-  { id: "sable", label: "Sable", category: "Pattern", valueHint: "e.g. Ay/-" },
-  { id: "furnishings", label: "Furnishings (IC / RSPO2)", category: "Coat", valueHint: "e.g. F/F, F/f, f/f" },
-  { id: "curl", label: "Curl (KRT71)", category: "Coat", valueHint: "e.g. Cu/Cu, Cu/cu" },
-  { id: "improper-coat", label: "Improper coat", category: "Coat", valueHint: "e.g. IC/N clear" },
-  { id: "prcd-pra", label: "prcd-PRA", category: "Health", valueHint: "Clear / Carrier / Affected" },
-  { id: "vwd1", label: "vWD Type I", category: "Health", valueHint: "Clear / Carrier / Affected" },
-  { id: "dm", label: "Degenerative Myelopathy (DM)", category: "Health", valueHint: "Clear / Carrier / Affected" },
-  { id: "neonatal-enceph", label: "Neonatal Encephalopathy (NEWS)", category: "Health", valueHint: "Clear / Carrier / Affected" },
-  { id: "osteochondrodysplasia", label: "Osteochondrodysplasia", category: "Health", valueHint: "Clear / Carrier / Affected" },
+  /** Common result/allele combos for the Result dropdown */
+  alleleOptions?: string[];
+};
+
+const HEALTH_CLEAR_CARRIER_AFFECTED = [
+  "Clear",
+  "Carrier",
+  "Affected",
+  "N/N",
+  "N/Mut",
+  "Mut/Mut",
+] as const;
+
+/** Common miniature poodle / color genetics suggestions for admin multi-select. */
+export const GENETICS_PRESETS: GeneticsPreset[] = [
+  {
+    id: "a-locus",
+    label: "A locus (Agouti / ASIP)",
+    category: "Locus",
+    valueHint: "e.g. Ay/at, at/at, a/a",
+    alleleOptions: [
+      "Ay/Ay",
+      "Ay/aw",
+      "Ay/at",
+      "Ay/a",
+      "aw/aw",
+      "aw/at",
+      "aw/a",
+      "at/at",
+      "at/a",
+      "a/a",
+    ],
+  },
+  {
+    id: "b-locus",
+    label: "B locus (Black/Brown / TYRP1)",
+    category: "Locus",
+    valueHint: "e.g. B/B, B/b, b/b",
+    alleleOptions: ["B/B", "B/b", "b/b"],
+  },
+  {
+    id: "d-locus",
+    label: "D locus (Dilute / MLPH)",
+    category: "Locus",
+    valueHint: "e.g. D/D, D/d, d/d",
+    alleleOptions: ["D/D", "D/d", "d/d"],
+  },
+  {
+    id: "e-locus",
+    label: "E locus (Extension / MC1R)",
+    category: "Locus",
+    valueHint: "e.g. E/E, E/e, e/e",
+    alleleOptions: [
+      "E/E",
+      "E/e",
+      "e/e",
+      "Em/Em",
+      "Em/E",
+      "Em/e",
+      "Eg/E",
+      "Eg/e",
+      "Eh/E",
+      "Eh/e",
+    ],
+  },
+  {
+    id: "k-locus",
+    label: "K locus (Dominant black / CBD103)",
+    category: "Locus",
+    valueHint: "e.g. KB/ky, ky/ky",
+    alleleOptions: [
+      "KB/KB",
+      "KB/kbr",
+      "KB/ky",
+      "kbr/kbr",
+      "kbr/ky",
+      "ky/ky",
+    ],
+  },
+  {
+    id: "s-locus",
+    label: "S locus (Spotting / white)",
+    category: "Locus",
+    valueHint: "e.g. S/S, S/sp, sp/sp",
+    alleleOptions: ["S/S", "S/si", "S/sp", "si/si", "si/sp", "sp/sp"],
+  },
+  {
+    id: "m-locus",
+    label: "M locus (Merle)",
+    category: "Pattern",
+    valueHint: "e.g. m/m, M/m, Mh/m",
+    alleleOptions: [
+      "m/m (non-merle)",
+      "M/m (heterozygous merle)",
+      "M/M (double merle)",
+      "Mh/m",
+      "Mh/Mh",
+      "Mc/m",
+      "Ma/m",
+      "M/Mc",
+      "M/Ma",
+      "M/Mh",
+    ],
+  },
+  {
+    id: "merle-pmel",
+    label: "Merle (PMEL / SILV)",
+    category: "Pattern",
+    valueHint: "PMEL length / genotype, e.g. m/m, M/m, Mh268",
+    alleleOptions: [
+      "m/m (non-merle)",
+      "M/m (classic merle)",
+      "M/M (double merle)",
+      "Mh/m (harlequin merle)",
+      "Mh/Mh",
+      "Mc/m (cryptic merle)",
+      "Ma/m (atypical merle)",
+      "Mh268",
+      "Mh265",
+      "M268",
+      "SINE insertion present",
+      "SINE insertion absent",
+    ],
+  },
+  {
+    id: "parti",
+    label: "Parti",
+    category: "Pattern",
+    valueHint: "e.g. carrier, expressed",
+    alleleOptions: [
+      "Not parti",
+      "Parti carrier",
+      "Parti expressed",
+      "Abstract / mismark",
+    ],
+  },
+  {
+    id: "phantom",
+    label: "Phantom",
+    category: "Pattern",
+    valueHint: "e.g. at/at related phantom",
+    alleleOptions: [
+      "Not phantom",
+      "Phantom carrier",
+      "Phantom expressed",
+      "at/at (phantom genotype)",
+    ],
+  },
+  {
+    id: "abstract",
+    label: "Abstract / mismark",
+    category: "Pattern",
+    valueHint: "e.g. abstract white",
+    alleleOptions: [
+      "None",
+      "Minor abstract",
+      "Abstract white",
+      "Mismark",
+    ],
+  },
+  {
+    id: "sable",
+    label: "Sable",
+    category: "Pattern",
+    valueHint: "e.g. Ay/-",
+    alleleOptions: ["Not sable", "Sable (Ay/-)", "Ay/Ay", "Ay/at", "Ay/a"],
+  },
+  {
+    id: "furnishings",
+    label: "Furnishings (RSPO2)",
+    category: "Coat",
+    valueHint: "e.g. F/F, F/f, f/f",
+    alleleOptions: [
+      "F/F (furnishings)",
+      "F/f (furnishings)",
+      "f/f (no furnishings)",
+    ],
+  },
+  {
+    id: "curl",
+    label: "Curl (KRT71)",
+    category: "Coat",
+    valueHint: "e.g. Cu/Cu, Cu/cu",
+    alleleOptions: ["Cu/Cu", "Cu/cu", "cu/cu"],
+  },
+  {
+    id: "improper-coat",
+    label: "Improper coat (IC)",
+    category: "Coat",
+    valueHint: "e.g. IC/N clear",
+    alleleOptions: [
+      "Clear (N/N)",
+      "Carrier (IC/N)",
+      "Affected (IC/IC)",
+      "Furnishings present",
+    ],
+  },
+  {
+    id: "prcd-pra",
+    label: "prcd-PRA",
+    category: "Health",
+    valueHint: "Clear / Carrier / Affected",
+    alleleOptions: [...HEALTH_CLEAR_CARRIER_AFFECTED],
+  },
+  {
+    id: "vwd1",
+    label: "vWD Type I",
+    category: "Health",
+    valueHint: "Clear / Carrier / Affected",
+    alleleOptions: [...HEALTH_CLEAR_CARRIER_AFFECTED],
+  },
+  {
+    id: "dm",
+    label: "Degenerative Myelopathy (DM)",
+    category: "Health",
+    valueHint: "Clear / Carrier / Affected",
+    alleleOptions: [...HEALTH_CLEAR_CARRIER_AFFECTED],
+  },
+  {
+    id: "neonatal-enceph",
+    label: "Neonatal Encephalopathy (NEWS)",
+    category: "Health",
+    valueHint: "Clear / Carrier / Affected",
+    alleleOptions: [...HEALTH_CLEAR_CARRIER_AFFECTED],
+  },
+  {
+    id: "osteochondrodysplasia",
+    label: "Osteochondrodysplasia",
+    category: "Health",
+    valueHint: "Clear / Carrier / Affected",
+    alleleOptions: [...HEALTH_CLEAR_CARRIER_AFFECTED],
+  },
 ];
 
 export function emptyGeneticsData(): GeneticsData {
@@ -183,4 +394,9 @@ function strForm(formData: FormData, key: string): string {
 
 export function presetById(id: string) {
   return GENETICS_PRESETS.find((p) => p.id === id);
+}
+
+/** Allele suggestions for a marker id (empty for custom genes). */
+export function alleleOptionsForMarker(id: string): string[] {
+  return presetById(id)?.alleleOptions ?? [];
 }

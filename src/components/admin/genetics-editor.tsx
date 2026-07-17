@@ -3,13 +3,14 @@
 import { useMemo, useState } from "react";
 import {
   GENETICS_PRESETS,
+  alleleOptionsForMarker,
   emptyGeneticsData,
   parseGeneticsData,
   type GeneticsData,
   type GeneticsEntry,
   type GeneticsSource,
 } from "@/lib/genetics";
-import { inputClass, textareaClass } from "@/components/admin/field";
+import { inputClass, selectClass, textareaClass } from "@/components/admin/field";
 
 type Props = {
   /** Existing JSON column value */
@@ -96,8 +97,9 @@ export function GeneticsEditor({ geneticsData, geneticsText }: Props) {
       <div>
         <p className="text-sm font-medium text-gray-700">Genetics</p>
         <p className="mt-1 text-xs text-gray-500">
-          Select common markers and enter allele results. Add custom genes as
-          needed. Stored as flexible JSON for a future visualizer.
+          Select common markers, then pick a result/allele combo from the
+          dropdown (or type a custom value). Stored as flexible JSON for a
+          future visualizer.
         </p>
       </div>
 
@@ -114,7 +116,7 @@ export function GeneticsEditor({ geneticsData, geneticsText }: Props) {
               setPresetPick(v);
               if (v) addPreset(v);
             }}
-            className={inputClass}
+            className={selectClass}
           >
             <option value="">Choose a common gene / locus…</option>
             {[...categories.entries()].map(([cat, presets]) => (
@@ -168,10 +170,13 @@ export function GeneticsEditor({ geneticsData, geneticsText }: Props) {
         <ul className="space-y-3">
           {entries.map((entry) => {
             const preset = GENETICS_PRESETS.find((p) => p.id === entry.id);
+            const alleleOptions = alleleOptionsForMarker(entry.id);
+            const valueInList = alleleOptions.includes(entry.value);
+
             return (
               <li
                 key={entry.id}
-                className="grid gap-2 rounded-lg border border-gray-200 bg-white p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+                className="grid gap-2 rounded-lg border border-gray-200 bg-white p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] sm:items-start"
               >
                 <label className="block min-w-0">
                   <span className="mb-1 block text-xs text-gray-400">Label</span>
@@ -185,23 +190,53 @@ export function GeneticsEditor({ geneticsData, geneticsText }: Props) {
                     readOnly={entry.source === "preset"}
                   />
                 </label>
-                <label className="block min-w-0">
-                  <span className="mb-1 block text-xs text-gray-400">
+
+                <div className="min-w-0 space-y-2">
+                  <span className="block text-xs text-gray-400">
                     Result / alleles
                   </span>
+                  {alleleOptions.length > 0 ? (
+                    <select
+                      value={valueInList ? entry.value : ""}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (v) updateEntry(entry.id, { value: v });
+                      }}
+                      className={selectClass}
+                      aria-label={`Common results for ${entry.label}`}
+                    >
+                      <option value="">
+                        {entry.value && !valueInList
+                          ? "Custom value (see below) — or pick a common result…"
+                          : "Pick a common result / allele combo…"}
+                      </option>
+                      {alleleOptions.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  ) : null}
                   <input
                     value={entry.value}
                     onChange={(e) =>
                       updateEntry(entry.id, { value: e.target.value })
                     }
                     className={inputClass}
-                    placeholder={preset?.valueHint ?? "e.g. B/b, Clear"}
+                    placeholder={
+                      preset?.valueHint ??
+                      (alleleOptions.length
+                        ? "Or type a custom result…"
+                        : "e.g. B/b, Clear")
+                    }
+                    aria-label={`Result value for ${entry.label || "gene"}`}
                   />
-                </label>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => removeEntry(entry.id)}
-                  className="rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 transition hover:border-red-200 hover:text-red-700"
+                  className="rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 transition hover:border-red-200 hover:text-red-700 sm:mt-5"
                 >
                   Remove
                 </button>
@@ -228,7 +263,11 @@ export function GeneticsEditor({ geneticsData, geneticsText }: Props) {
       <input
         type="hidden"
         name="geneticsDataJson"
-        value={JSON.stringify(payload.entries.length || payload.notes ? payload : emptyGeneticsData())}
+        value={JSON.stringify(
+          payload.entries.length || payload.notes
+            ? payload
+            : emptyGeneticsData(),
+        )}
       />
     </div>
   );

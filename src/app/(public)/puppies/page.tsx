@@ -57,7 +57,7 @@ export default async function PuppiesPage() {
     <>
       <PageHero
         title="Puppies"
-        subtitle="Organized by litter · linked to sire & dam"
+        subtitle="Organized by litter"
       />
       <SectionShell>
         {!hasAny ? (

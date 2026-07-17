@@ -5,14 +5,18 @@ import { SITE } from "@/lib/constants";
 import { db } from "@/lib/db";
 
 export default async function HomePage() {
+  // Three most recently born available puppies
   const available = await db.puppy.findMany({
     where: {
       isPublished: true,
       isAdopted: false,
       status: { in: ["AVAILABLE", "GUARDIANSHIP"] },
     },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    take: 6,
+    orderBy: [
+      { birthDate: { sort: "desc", nulls: "last" } },
+      { createdAt: "desc" },
+    ],
+    take: 3,
     include: {
       photos: {
         orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
@@ -52,10 +56,10 @@ export default async function HomePage() {
         <div className="container mx-auto grid grid-cols-1 gap-10 px-6 text-center md:grid-cols-3">
           <div>
             <h3 className="text-base font-semibold text-black">
-              Ralph & Janine McNeely
+              Ralph McBride and Janine Neely
             </h3>
             <p className="mt-2 text-sm text-gray-500">
-              Family breeders · home-raised miniature poodles
+              Ethical breeders · home-raised miniature poodles
             </p>
           </div>
           <div>
@@ -90,7 +94,7 @@ export default async function HomePage() {
             </div>
             <Link
               href="/puppies"
-              className="text-sm text-gray-500 transition hover:text-black"
+              className="text-base font-medium text-gray-700 underline-offset-2 transition hover:text-black hover:underline md:text-lg"
             >
               See all puppies →
             </Link>

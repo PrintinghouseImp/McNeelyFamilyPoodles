@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createPuppy } from "@/app/admin/actions/puppies";
+import { GeneticsEditor } from "@/components/admin/genetics-editor";
 import {
   btnPrimary,
   btnSecondary,
@@ -87,6 +88,7 @@ export default async function NewPuppyPage() {
         <Field label="Description">
           <textarea name="description" className={textareaClass} />
         </Field>
+        <GeneticsEditor />
         <Field label="Sort order">
           <input name="sortOrder" type="number" defaultValue={0} className={inputClass} />
         </Field>

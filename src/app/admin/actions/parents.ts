@@ -6,7 +6,9 @@ import { Sex } from "@/generated/prisma/client";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 import { bool, num, optionalStr, str } from "@/lib/form";
+import { geneticsFromFormData } from "@/lib/genetics";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import { Prisma } from "@/generated/prisma/client";
 
 function revalidateParents(slug?: string) {
   revalidatePath("/admin/parents");
@@ -31,6 +33,8 @@ export async function createParent(formData: FormData) {
     return Boolean(found);
   });
 
+  const { geneticsData, genetics } = geneticsFromFormData(formData);
+
   const parent = await db.parentDog.create({
     data: {
       name,
@@ -39,7 +43,8 @@ export async function createParent(formData: FormData) {
       color: optionalStr(formData, "color"),
       weightLbs: num(formData, "weightLbs"),
       heightInches: num(formData, "heightInches"),
-      genetics: optionalStr(formData, "genetics"),
+      genetics,
+      geneticsData: (geneticsData ?? undefined) as Prisma.InputJsonValue | undefined,
       description: optionalStr(formData, "description"),
       isRetired: bool(formData, "isRetired"),
       isPublished: bool(formData, "isPublished"),
@@ -72,6 +77,8 @@ export async function updateParent(formData: FormData) {
     });
   }
 
+  const { geneticsData, genetics } = geneticsFromFormData(formData);
+
   await db.parentDog.update({
     where: { id },
     data: {
@@ -81,7 +88,11 @@ export async function updateParent(formData: FormData) {
       color: optionalStr(formData, "color"),
       weightLbs: num(formData, "weightLbs"),
       heightInches: num(formData, "heightInches"),
-      genetics: optionalStr(formData, "genetics"),
+      genetics,
+      geneticsData:
+        geneticsData === null
+          ? Prisma.JsonNull
+          : (geneticsData as Prisma.InputJsonValue),
       description: optionalStr(formData, "description"),
       isRetired: bool(formData, "isRetired"),
       isPublished: bool(formData, "isPublished"),

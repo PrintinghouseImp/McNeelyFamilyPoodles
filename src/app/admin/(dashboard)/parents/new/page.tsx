@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createParent } from "@/app/admin/actions/parents";
+import { GeneticsEditor } from "@/components/admin/genetics-editor";
 import {
   btnPrimary,
   btnSecondary,
@@ -51,9 +52,7 @@ export default async function NewParentPage() {
             <input name="heightInches" type="number" step="0.1" className={inputClass} />
           </Field>
         </div>
-        <Field label="Genetics">
-          <input name="genetics" className={inputClass} />
-        </Field>
+        <GeneticsEditor />
         <Field label="Description">
           <textarea name="description" className={textareaClass} />
         </Field>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteParent, updateParent } from "@/app/admin/actions/parents";
+import { GeneticsEditor } from "@/components/admin/genetics-editor";
 import { PhotoManager } from "@/components/admin/photo-manager";
 import {
   btnDanger,
@@ -104,9 +105,10 @@ export default async function EditParentPage({ params }: Props) {
             />
           </Field>
         </div>
-        <Field label="Genetics">
-          <input name="genetics" defaultValue={parent.genetics ?? ""} className={inputClass} />
-        </Field>
+        <GeneticsEditor
+          geneticsData={parent.geneticsData}
+          geneticsText={parent.genetics}
+        />
         <Field label="Description">
           <textarea
             name="description"

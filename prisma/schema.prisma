@@ -97,7 +97,11 @@ model ParentDog {
   color        String?
   weightLbs    Float?
   heightInches Float?
+  /// Legacy free-text genotype summary (kept in sync from geneticsData for simple displays)
   genetics     String?  @db.Text
+  /// Structured genetics for modal + future visualizer
+  /// Shape: { version: 1, entries: [{ id, label, value, source }], notes? }
+  geneticsData Json?
   description  String?  @db.Text
   isRetired    Boolean  @default(false)
   isPublished  Boolean  @default(true)
@@ -144,6 +148,10 @@ model Puppy {
   /// Free-text when not a fixed price (e.g. "Available for Guardianship")
   priceLabel   String?
   description  String?     @db.Text
+  /// Free-text genotype summary (synced from geneticsData)
+  genetics     String?     @db.Text
+  /// Structured genetics for modal + future visualizer
+  geneticsData Json?
   birthDate    DateTime?
   /// When true, shown on Alumni (Adopted Puppies) instead of main Puppies list
   isAdopted    Boolean     @default(false)

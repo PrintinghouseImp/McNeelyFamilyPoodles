@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { PhotoPlaceholder } from "@/components/inventory/photo-placeholder";
 import { PuppyCard } from "@/components/inventory/puppy-card";
+import { ViewGeneticsButton } from "@/components/inventory/view-genetics-button";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
 import { db } from "@/lib/db";
@@ -156,17 +157,6 @@ export default async function ParentDetailPage({ params }: Props) {
               ))}
             </dl>
 
-            {parent.genetics ? (
-              <div className="mt-6">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  Genetics
-                </h2>
-                <p className="mt-2 font-mono text-sm text-gray-700">
-                  {parent.genetics}
-                </p>
-              </div>
-            ) : null}
-
             {parent.description ? (
               <div className="mt-6">
                 <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
@@ -177,6 +167,14 @@ export default async function ParentDetailPage({ params }: Props) {
                 </p>
               </div>
             ) : null}
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <ViewGeneticsButton
+                dogName={parent.name}
+                geneticsData={parent.geneticsData}
+                geneticsText={parent.genetics}
+              />
+            </div>
           </div>
         </div>
 

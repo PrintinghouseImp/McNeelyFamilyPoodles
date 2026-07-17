@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { PhotoPlaceholder } from "@/components/inventory/photo-placeholder";
 import { StatusBadge } from "@/components/inventory/status-badge";
+import { ViewGeneticsButton } from "@/components/inventory/view-genetics-button";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
 import { db } from "@/lib/db";
@@ -187,6 +188,20 @@ export default async function PuppyDetailPage({ params }: Props) {
                   Request deposit
                 </Link>
               ) : null}
+              <ViewGeneticsButton
+                dogName={puppy.name}
+                geneticsData={puppy.geneticsData}
+                geneticsText={
+                  puppy.genetics ||
+                  [
+                    puppy.litter?.dam.genetics,
+                    puppy.litter?.sire.genetics,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") ||
+                  null
+                }
+              />
               <Link
                 href="/parents"
                 className="inline-flex items-center justify-center rounded-full border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:text-black"

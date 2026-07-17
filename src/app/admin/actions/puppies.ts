@@ -13,7 +13,9 @@ import {
   optionalStr,
   str,
 } from "@/lib/form";
+import { geneticsFromFormData } from "@/lib/genetics";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import { Prisma } from "@/generated/prisma/client";
 
 const STATUSES = new Set<string>(Object.values(PuppyStatus));
 
@@ -51,6 +53,8 @@ export async function createPuppy(formData: FormData) {
     ? ("SOLD" as PuppyStatus)
     : status;
 
+  const { geneticsData, genetics } = geneticsFromFormData(formData);
+
   const puppy = await db.puppy.create({
     data: {
       name,
@@ -61,6 +65,8 @@ export async function createPuppy(formData: FormData) {
       priceCents: dollarsToCents(formData, "priceDollars"),
       priceLabel: optionalStr(formData, "priceLabel"),
       description: optionalStr(formData, "description"),
+      genetics,
+      geneticsData: (geneticsData ?? undefined) as Prisma.InputJsonValue | undefined,
       birthDate: dateOnly(formData, "birthDate"),
       litterId,
       isAdopted,
@@ -105,6 +111,8 @@ export async function updatePuppy(formData: FormData) {
     ? ("SOLD" as PuppyStatus)
     : status;
 
+  const { geneticsData, genetics } = geneticsFromFormData(formData);
+
   await db.puppy.update({
     where: { id },
     data: {
@@ -116,6 +124,11 @@ export async function updatePuppy(formData: FormData) {
       priceCents: dollarsToCents(formData, "priceDollars"),
       priceLabel: optionalStr(formData, "priceLabel"),
       description: optionalStr(formData, "description"),
+      genetics,
+      geneticsData:
+        geneticsData === null
+          ? Prisma.JsonNull
+          : (geneticsData as Prisma.InputJsonValue),
       birthDate: dateOnly(formData, "birthDate"),
       litterId,
       isAdopted,

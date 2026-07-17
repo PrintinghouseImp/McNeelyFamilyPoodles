@@ -5,6 +5,7 @@ import {
   revokeDogOwnership,
 } from "@/app/admin/actions/ownership";
 import { deletePuppy, updatePuppy } from "@/app/admin/actions/puppies";
+import { GeneticsEditor } from "@/components/admin/genetics-editor";
 import { PhotoManager } from "@/components/admin/photo-manager";
 import {
   btnDanger,
@@ -190,6 +191,10 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
             className={textareaClass}
           />
         </Field>
+        <GeneticsEditor
+          geneticsData={puppy.geneticsData}
+          geneticsText={puppy.genetics}
+        />
         <Field label="Sort order">
           <input
             name="sortOrder"

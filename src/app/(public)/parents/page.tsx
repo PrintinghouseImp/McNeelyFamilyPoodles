@@ -29,7 +29,7 @@ export default async function ParentsPage() {
     <>
       <PageHero
         title="Sires & Dams"
-        subtitle="The heart of our breeding program"
+        subtitle="The heart of the McNeely Family"
       />
       <SectionShell>
         {parents.length === 0 ? (

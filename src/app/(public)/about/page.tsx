@@ -4,15 +4,15 @@ import { SITE } from "@/lib/constants";
 
 export const metadata = {
   title: "About Us",
-  description: `Meet Ralph & Janine McNeely and the story behind ${SITE.name}.`,
+  description: `Meet Ralph McBride & Janine Neely and the story behind ${SITE.name}.`,
 };
 
 export default function AboutPage() {
   return (
     <>
       <PageHero
-        title="Ralph & Janine McNeely"
-        subtitle="Breeding miniature poodle companions · Phoenix, Arizona"
+        title="Ralph McBride & Janine Neely"
+        subtitle="Ethical breeders of miniature poodle companions · Phoenix, Arizona"
       />
       <SectionShell>
         <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-2 lg:gap-20">
@@ -76,7 +76,7 @@ export default function AboutPage() {
       <section className="border-t border-gray-200 bg-gray-50 py-16">
         <div className="container mx-auto px-6">
           <h2 className="mb-12 text-center text-3xl font-semibold tracking-tight text-black md:text-4xl">
-            Visiting Scholars
+            Poodle Wranglers
           </h2>
           <div className="mx-auto grid max-w-4xl gap-12 md:grid-cols-2">
             <div className="text-center">
@@ -106,18 +106,18 @@ export default function AboutPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/legacy/humans/janine_ralph_funny.webp"
-                  alt="Ralph and Janine McNeely"
+                  alt="Ralph McBride and Janine Neely"
                   className="aspect-[4/5] w-full object-cover"
                 />
               </div>
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                The ranch team
+                The Ranch Team
               </p>
               <h3 className="mt-1 text-xl font-semibold text-black">
                 Ralph & Janine
               </h3>
               <p className="mt-2 text-sm text-gray-500">
-                Family breeders · Laveen, Arizona
+                Ethical breeders · Laveen, Arizona
               </p>
               <p className="mt-3 text-sm text-gray-600">
                 Home-raised puppies, health-tested parents, lifetime support

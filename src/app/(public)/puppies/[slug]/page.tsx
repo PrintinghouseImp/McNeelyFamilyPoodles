@@ -131,14 +131,8 @@ export default async function PuppyDetailPage({ params }: Props) {
             {puppy.litter ? (
               <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
                 <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  Litter & parents
+                  Parents
                 </h2>
-                <p className="mt-2 text-gray-700">
-                  {puppy.litter.name ?? "Litter"}
-                  {puppy.litter.birthDate
-                    ? ` · ${formatDate(puppy.litter.birthDate)}`
-                    : null}
-                </p>
                 <p className="mt-3 text-sm text-gray-600">
                   Dam:{" "}
                   <Link
@@ -202,12 +196,6 @@ export default async function PuppyDetailPage({ params }: Props) {
                   null
                 }
               />
-              <Link
-                href="/parents"
-                className="inline-flex items-center justify-center rounded-full border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:text-black"
-              >
-                Meet the parents
-              </Link>
             </div>
           </div>
         </div>

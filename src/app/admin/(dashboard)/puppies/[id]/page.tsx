@@ -16,6 +16,7 @@ import {
   textareaClass,
   Field,
 } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
@@ -205,9 +206,7 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
           Adopted — show on Alumni (removes from main Puppies list)
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
-          <button type="submit" className={btnPrimary}>
-            Save changes
-          </button>
+          <SubmitButton>Save changes</SubmitButton>
           <Link href="/admin/puppies" className={btnSecondary}>
             Cancel
           </Link>
@@ -385,9 +384,7 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
               className={inputClass}
             />
           </Field>
-          <button type="submit" className={btnPrimary}>
-            Grant portal access
-          </button>
+          <SubmitButton pendingLabel="Granting…">Grant portal access</SubmitButton>
         </form>
       </section>
 

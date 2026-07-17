@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { createMedicalRecord } from "@/app/admin/actions/medical";
 import {
-  btnPrimary,
   btnSecondary,
   inputClass,
   selectClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 
@@ -30,12 +29,10 @@ export default async function NewMedicalRecordPage({ searchParams }: Props) {
   const [parents, puppies] = await Promise.all([
     db.parentDog.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, sex: true },
-    }),
+      select: { id: true, name: true, sex: true } }),
     db.puppy.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
+      select: { id: true, name: true } }),
   ]);
 
   const defaultTarget = params.parent
@@ -133,9 +130,7 @@ export default async function NewMedicalRecordPage({ searchParams }: Props) {
         </Field>
 
         <div className="flex flex-wrap gap-3 pt-2">
-          <button type="submit" className={btnPrimary}>
-            Save medical record
-          </button>
+          <SubmitButton pendingLabel="Saving…">Save medical record</SubmitButton>
           <Link href="/admin/medical" className={btnSecondary}>
             Cancel
           </Link>

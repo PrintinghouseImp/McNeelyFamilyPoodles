@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { createPuppy } from "@/app/admin/actions/puppies";
 import {
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,
   selectClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 
@@ -19,8 +18,7 @@ export default async function NewPuppyPage() {
 
   const litters = await db.litter.findMany({
     orderBy: { birthDate: "desc" },
-    select: { id: true, name: true, slug: true },
-  });
+    select: { id: true, name: true, slug: true } });
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -91,9 +89,7 @@ export default async function NewPuppyPage() {
           Adopted — show on Alumni (removes from main Puppies list)
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
-          <button type="submit" className={btnPrimary}>
-            Create puppy
-          </button>
+          <SubmitButton pendingLabel="Creating…">Create puppy</SubmitButton>
           <Link href="/admin/puppies" className={btnSecondary}>
             Cancel
           </Link>

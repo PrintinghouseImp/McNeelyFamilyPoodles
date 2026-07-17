@@ -4,14 +4,13 @@ import { deleteLitter, updateLitter } from "@/app/admin/actions/litters";
 import { PhotoManager } from "@/components/admin/photo-manager";
 import {
   btnDanger,
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,
   selectClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 
@@ -23,8 +22,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: litter
       ? `Admin · ${litter.name ?? litter.slug}`
-      : "Admin · Litter",
-  };
+      : "Admin · Litter" };
 }
 
 export default async function EditLitterPage({ params }: Props) {
@@ -36,13 +34,10 @@ export default async function EditLitterPage({ params }: Props) {
       where: { id },
       include: {
         photos: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
-        puppies: { select: { id: true, name: true, slug: true } },
-      },
-    }),
+        puppies: { select: { id: true, name: true, slug: true } } } }),
     db.parentDog.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, sex: true },
-    }),
+      select: { id: true, name: true, sex: true } }),
   ]);
   if (!litter) notFound();
 
@@ -126,9 +121,7 @@ export default async function EditLitterPage({ params }: Props) {
           Published on public site
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
-          <button type="submit" className={btnPrimary}>
-            Save changes
-          </button>
+          <SubmitButton>Save changes</SubmitButton>
           <Link href="/admin/litters" className={btnSecondary}>
             Cancel
           </Link>

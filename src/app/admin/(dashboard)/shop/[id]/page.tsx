@@ -3,14 +3,13 @@ import { notFound } from "next/navigation";
 import { deleteShopItem, updateShopItem } from "@/app/admin/actions/cms";
 import {
   btnDanger,
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,
   selectClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
@@ -23,9 +22,7 @@ export default async function EditShopItemPage({ params }: Props) {
   const item = await db.shopItem.findUnique({
     where: { id },
     include: {
-      photos: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
-    },
-  });
+      photos: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] } } });
   if (!item) notFound();
 
   const primary = item.photos.find((p) => p.isPrimary) ?? item.photos[0];
@@ -107,9 +104,7 @@ export default async function EditShopItemPage({ params }: Props) {
           Published on public site
         </label>
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className={btnPrimary}>
-            Save
-          </button>
+          <SubmitButton>Save</SubmitButton>
           <Link href="/admin/shop" className={btnSecondary}>
             Cancel
           </Link>

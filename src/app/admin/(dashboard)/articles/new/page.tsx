@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { createArticle } from "@/app/admin/actions/cms";
 import {
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Admin · New article" };
@@ -56,9 +55,7 @@ export default async function NewArticlePage() {
           Published on public site
         </label>
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className={btnPrimary}>
-            Create article
-          </button>
+          <SubmitButton pendingLabel="Creating…">Create article</SubmitButton>
           <Link href="/admin/articles" className={btnSecondary}>
             Cancel
           </Link>

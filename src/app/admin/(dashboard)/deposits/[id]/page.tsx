@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { updateDepositStatus } from "@/app/actions/deposits";
 import {
-  btnPrimary,
   btnSecondary,
   selectClass,
   textareaClass,
   Field,
 } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 import {
@@ -178,9 +178,7 @@ export default async function AdminDepositDetailPage({ params }: Props) {
           />
         </Field>
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className={btnPrimary}>
-            Save status
-          </button>
+          <SubmitButton pendingLabel="Saving…">Save status</SubmitButton>
           <Link href="/admin/deposits" className={btnSecondary}>
             Back to list
           </Link>

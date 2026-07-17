@@ -3,13 +3,12 @@ import { notFound } from "next/navigation";
 import { deleteArticle, updateArticle } from "@/app/admin/actions/cms";
 import {
   btnDanger,
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
@@ -102,9 +101,7 @@ export default async function EditArticlePage({ params }: Props) {
           Published on public site
         </label>
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className={btnPrimary}>
-            Save
-          </button>
+          <SubmitButton>Save</SubmitButton>
           <Link href="/admin/articles" className={btnSecondary}>
             Cancel
           </Link>

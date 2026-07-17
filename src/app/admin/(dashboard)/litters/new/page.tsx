@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { createLitter } from "@/app/admin/actions/litters";
 import {
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,
   selectClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 
@@ -19,8 +18,7 @@ export default async function NewLitterPage() {
 
   const parents = await db.parentDog.findMany({
     orderBy: { name: "asc" },
-    select: { id: true, name: true, sex: true },
-  });
+    select: { id: true, name: true, sex: true } });
   const dams = parents.filter((p) => p.sex === "FEMALE");
   const sires = parents.filter((p) => p.sex === "MALE");
 
@@ -95,9 +93,7 @@ export default async function NewLitterPage() {
             Published on public site
           </label>
           <div className="flex flex-wrap gap-3 pt-2">
-            <button type="submit" className={btnPrimary}>
-              Create litter
-            </button>
+            <SubmitButton pendingLabel="Creating…">Create litter</SubmitButton>
             <Link href="/admin/litters" className={btnSecondary}>
               Cancel
             </Link>

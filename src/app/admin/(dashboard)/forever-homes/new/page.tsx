@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { createForeverHome } from "@/app/admin/actions/cms";
 import {
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Admin · New forever home" };
@@ -64,9 +63,7 @@ export default async function NewForeverHomePage() {
           Published on public site
         </label>
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className={btnPrimary}>
-            Create story
-          </button>
+          <SubmitButton pendingLabel="Creating…">Create story</SubmitButton>
           <Link href="/admin/forever-homes" className={btnSecondary}>
             Cancel
           </Link>

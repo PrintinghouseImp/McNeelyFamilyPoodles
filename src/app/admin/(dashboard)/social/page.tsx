@@ -11,6 +11,7 @@ import {
   textareaClass,
   Field,
 } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
@@ -74,9 +75,7 @@ export default async function AdminSocialPage({ searchParams }: Props) {
             placeholder="https://facebook.com/yourpage"
           />
         </Field>
-        <button type="submit" className={btnPrimary}>
-          Save profile links
-        </button>
+        <SubmitButton pendingLabel="Saving…">Save profile links</SubmitButton>
       </form>
 
       <div className="mt-12">
@@ -120,9 +119,7 @@ export default async function AdminSocialPage({ searchParams }: Props) {
             <input type="checkbox" name="isPublished" defaultChecked className={checkClass} />
             Published
           </label>
-          <button type="submit" className={btnPrimary}>
-            Add curated post
-          </button>
+          <SubmitButton pendingLabel="Adding…">Add curated post</SubmitButton>
         </form>
 
         {posts.length === 0 ? (

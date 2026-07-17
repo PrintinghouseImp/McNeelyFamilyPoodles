@@ -2,14 +2,13 @@ import Link from "next/link";
 import { createParent } from "@/app/admin/actions/parents";
 import { GeneticsEditor } from "@/components/admin/genetics-editor";
 import {
-  btnPrimary,
   btnSecondary,
   checkClass,
   inputClass,
   selectClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 
 export const metadata = { title: "Admin · New parent" };
@@ -68,9 +67,7 @@ export default async function NewParentPage() {
           Retired — show on Alumni (removes from main Parents list)
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
-          <button type="submit" className={btnPrimary}>
-            Create parent
-          </button>
+          <SubmitButton pendingLabel="Creating…">Create parent</SubmitButton>
           <Link href="/admin/parents" className={btnSecondary}>
             Cancel
           </Link>

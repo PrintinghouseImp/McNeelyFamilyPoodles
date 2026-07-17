@@ -13,6 +13,8 @@ import {
   textareaClass,
   Field,
 } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
+// btnPrimary still used for medical records link
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 
@@ -143,9 +145,7 @@ export default async function EditParentPage({ params }: Props) {
           Retired — show on Alumni (removes from main Parents list)
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
-          <button type="submit" className={btnPrimary}>
-            Save changes
-          </button>
+          <SubmitButton>Save changes</SubmitButton>
           <Link href="/admin/parents" className={btnSecondary}>
             Cancel
           </Link>

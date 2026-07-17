@@ -2,18 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   deleteMedicalRecord,
-  updateMedicalRecord,
-} from "@/app/admin/actions/medical";
+  updateMedicalRecord } from "@/app/admin/actions/medical";
 import { MedicalFilePreview } from "@/components/admin/medical-file-preview";
 import {
   btnDanger,
-  btnPrimary,
   btnSecondary,
   inputClass,
   selectClass,
   textareaClass,
-  Field,
-} from "@/components/admin/field";
+  Field } from "@/components/admin/field";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
@@ -24,8 +22,7 @@ export async function generateMetadata({ params }: Props) {
   const { id } = await params;
   const record = await db.medicalRecord.findUnique({ where: { id } });
   return {
-    title: record ? `Admin · ${record.title}` : "Admin · Medical record",
-  };
+    title: record ? `Admin · ${record.title}` : "Admin · Medical record" };
 }
 
 const TITLE_HINTS = [
@@ -43,17 +40,13 @@ export default async function EditMedicalRecordPage({ params }: Props) {
       where: { id },
       include: {
         parentDog: { select: { id: true, name: true } },
-        puppy: { select: { id: true, name: true } },
-      },
-    }),
+        puppy: { select: { id: true, name: true } } } }),
     db.parentDog.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, sex: true },
-    }),
+      select: { id: true, name: true, sex: true } }),
     db.puppy.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
+      select: { id: true, name: true } }),
   ]);
 
   if (!record) notFound();
@@ -190,9 +183,7 @@ export default async function EditMedicalRecordPage({ params }: Props) {
         </Field>
 
         <div className="flex flex-wrap gap-3 pt-2">
-          <button type="submit" className={btnPrimary}>
-            Save changes
-          </button>
+          <SubmitButton>Save changes</SubmitButton>
           <Link href="/admin/medical" className={btnSecondary}>
             Back to list
           </Link>

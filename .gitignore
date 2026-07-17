@@ -47,3 +47,7 @@ next-env.d.ts
 /public/uploads/*
 !/public/uploads/.gitkeep
 
+# Legacy static site reference only — never build, commit, or deploy
+/old-site/
+/mcbridePoodles/
+

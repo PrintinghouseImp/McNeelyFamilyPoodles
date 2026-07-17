@@ -51,10 +51,10 @@ export default async function HomePage() {
         <div className="container mx-auto grid grid-cols-1 gap-10 px-6 text-center md:grid-cols-3">
           <div>
             <h3 className="text-base font-semibold text-black">
-              Family breeders
+              Ralph & Janine McNeely
             </h3>
             <p className="mt-2 text-sm text-gray-500">
-              Home-raised miniature poodles
+              Family breeders · home-raised miniature poodles
             </p>
           </div>
           <div>
@@ -70,7 +70,7 @@ export default async function HomePage() {
               {SITE.location}
             </h3>
             <p className="mt-2 text-sm text-gray-500">
-              Shipping nationwide available
+              Laveen ranch · shipping nationwide
             </p>
           </div>
         </div>

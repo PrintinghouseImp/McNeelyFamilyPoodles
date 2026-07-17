@@ -120,6 +120,7 @@ Code: `src/lib/r2.ts`, `src/lib/uploads.ts`, `MEDIA_CDN` in `src/lib/constants.t
 
 - Migrations live under `prisma/migrations/` (`init`, `forever_homes`, …).
 - Seed creates admin + sample Froggie/Arsibalt litter + Pepper (set a strong `ADMIN_PASSWORD` before seeding production).
+- **Legacy catalog import** (parents, litters, puppies, galleries from the old static site): after seed, run `npm run db:import-legacy`. Images live in `public/legacy/` (committed). The old site folder (`mcbridePoodles/` / `old-site/`) is **gitignored** and never built or deployed — reference only.
 
 ### Deploy (Netlify + Cloudflare)
 

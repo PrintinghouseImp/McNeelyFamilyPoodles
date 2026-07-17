@@ -5,7 +5,8 @@ export const SITE = {
   tagline: "Elite Miniature Poodles • Phoenix, Arizona",
   location: "Phoenix, Arizona",
   description:
-    "Boutique family-run miniature poodle breeders in the Phoenix area. Health-tested, home-raised companions.",
+    "Boutique family-run miniature poodle breeders in Laveen / Phoenix, Arizona. Health-tested, home-raised companions from Ralph & Janine McNeely.",
+  breeders: "Ralph & Janine McNeely",
 } as const;
 
 /** Cloudflare R2 public media CDN (custom domain) */

@@ -5,7 +5,6 @@ import {
   revokeDogOwnership,
 } from "@/app/admin/actions/ownership";
 import { deletePuppy, updatePuppy } from "@/app/admin/actions/puppies";
-import { GeneticsEditor } from "@/components/admin/genetics-editor";
 import { PhotoManager } from "@/components/admin/photo-manager";
 import {
   btnDanger,
@@ -120,9 +119,6 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
         <Field label="Name">
           <input name="name" required defaultValue={puppy.name} className={inputClass} />
         </Field>
-        <Field label="Slug">
-          <input name="slug" required defaultValue={puppy.slug} className={inputClass} />
-        </Field>
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Sex">
             <select name="sex" required className={selectClass} defaultValue={puppy.sex}>
@@ -143,25 +139,16 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
         <Field label="Color">
           <input name="color" defaultValue={puppy.color ?? ""} className={inputClass} />
         </Field>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Price (USD)">
-            <input
-              name="priceDollars"
-              type="number"
-              step="0.01"
-              min="0"
-              defaultValue={priceDollars}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Price label">
-            <input
-              name="priceLabel"
-              defaultValue={puppy.priceLabel ?? ""}
-              className={inputClass}
-            />
-          </Field>
-        </div>
+        <Field label="Price (USD)">
+          <input
+            name="priceDollars"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={priceDollars}
+            className={inputClass}
+          />
+        </Field>
         <Field label="Birth date">
           <input
             name="birthDate"
@@ -191,10 +178,6 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
             className={textareaClass}
           />
         </Field>
-        <GeneticsEditor
-          geneticsData={puppy.geneticsData}
-          geneticsText={puppy.genetics}
-        />
         <Field label="Sort order">
           <input
             name="sortOrder"

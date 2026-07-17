@@ -13,9 +13,7 @@ import {
   optionalStr,
   str,
 } from "@/lib/form";
-import { geneticsFromFormData } from "@/lib/genetics";
 import { slugify, uniqueSlug } from "@/lib/slug";
-import { Prisma } from "@/generated/prisma/client";
 
 const STATUSES = new Set<string>(Object.values(PuppyStatus));
 
@@ -40,7 +38,8 @@ export async function createPuppy(formData: FormData) {
     STATUSES.has(statusRaw) ? statusRaw : "AVAILABLE"
   ) as PuppyStatus;
 
-  const slug = await uniqueSlug(slugify(str(formData, "slug") || name), async (s) => {
+  // Slug is always derived from the name (not editable in admin)
+  const slug = await uniqueSlug(slugify(name), async (s) => {
     const found = await db.puppy.findUnique({ where: { slug: s } });
     return Boolean(found);
   });
@@ -53,8 +52,6 @@ export async function createPuppy(formData: FormData) {
     ? ("SOLD" as PuppyStatus)
     : status;
 
-  const { geneticsData, genetics } = geneticsFromFormData(formData);
-
   const puppy = await db.puppy.create({
     data: {
       name,
@@ -63,10 +60,7 @@ export async function createPuppy(formData: FormData) {
       status: resolvedStatus,
       color: optionalStr(formData, "color"),
       priceCents: dollarsToCents(formData, "priceDollars"),
-      priceLabel: optionalStr(formData, "priceLabel"),
       description: optionalStr(formData, "description"),
-      genetics,
-      geneticsData: (geneticsData ?? undefined) as Prisma.InputJsonValue | undefined,
       birthDate: dateOnly(formData, "birthDate"),
       litterId,
       isAdopted,
@@ -96,9 +90,10 @@ export async function updatePuppy(formData: FormData) {
     STATUSES.has(statusRaw) ? statusRaw : existing.status
   ) as PuppyStatus;
 
-  let slug = slugify(str(formData, "slug") || name);
-  if (slug !== existing.slug) {
-    slug = await uniqueSlug(slug, async (s) => {
+  // Re-derive slug when the name changes
+  let slug = existing.slug;
+  if (name !== existing.name) {
+    slug = await uniqueSlug(slugify(name), async (s) => {
       const found = await db.puppy.findUnique({ where: { slug: s } });
       return Boolean(found) && found?.id !== id;
     });
@@ -111,8 +106,6 @@ export async function updatePuppy(formData: FormData) {
     ? ("SOLD" as PuppyStatus)
     : status;
 
-  const { geneticsData, genetics } = geneticsFromFormData(formData);
-
   await db.puppy.update({
     where: { id },
     data: {
@@ -122,13 +115,7 @@ export async function updatePuppy(formData: FormData) {
       status: resolvedStatus,
       color: optionalStr(formData, "color"),
       priceCents: dollarsToCents(formData, "priceDollars"),
-      priceLabel: optionalStr(formData, "priceLabel"),
       description: optionalStr(formData, "description"),
-      genetics,
-      geneticsData:
-        geneticsData === null
-          ? Prisma.JsonNull
-          : (geneticsData as Prisma.InputJsonValue),
       birthDate: dateOnly(formData, "birthDate"),
       litterId,
       isAdopted,

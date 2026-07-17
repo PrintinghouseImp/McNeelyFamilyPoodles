@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { createPuppy } from "@/app/admin/actions/puppies";
-import { GeneticsEditor } from "@/components/admin/genetics-editor";
 import {
   btnPrimary,
   btnSecondary,
@@ -38,11 +37,8 @@ export default async function NewPuppyPage() {
         action={createPuppy}
         className="mt-8 space-y-5 rounded-2xl border border-gray-200 bg-white p-6"
       >
-        <Field label="Name">
+        <Field label="Name" hint="URL slug is generated automatically from the name">
           <input name="name" required className={inputClass} />
-        </Field>
-        <Field label="Slug (optional)">
-          <input name="slug" className={inputClass} />
         </Field>
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Sex">
@@ -64,14 +60,9 @@ export default async function NewPuppyPage() {
         <Field label="Color">
           <input name="color" className={inputClass} />
         </Field>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Price (USD)" hint="e.g. 1200">
-            <input name="priceDollars" type="number" step="0.01" min="0" className={inputClass} />
-          </Field>
-          <Field label="Price label" hint='Override, e.g. "Guardianship"'>
-            <input name="priceLabel" className={inputClass} />
-          </Field>
-        </div>
+        <Field label="Price (USD)" hint="e.g. 1200">
+          <input name="priceDollars" type="number" step="0.01" min="0" className={inputClass} />
+        </Field>
         <Field label="Birth date">
           <input name="birthDate" type="date" className={inputClass} />
         </Field>
@@ -88,7 +79,6 @@ export default async function NewPuppyPage() {
         <Field label="Description">
           <textarea name="description" className={textareaClass} />
         </Field>
-        <GeneticsEditor />
         <Field label="Sort order">
           <input name="sortOrder" type="number" defaultValue={0} className={inputClass} />
         </Field>

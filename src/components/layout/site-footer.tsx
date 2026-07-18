@@ -1,13 +1,17 @@
 import Link from "next/link";
+import { siteSignOut } from "@/app/actions/auth";
 import {
   FOOTER_ACCOUNT_LINKS,
   FOOTER_MORE_LINKS,
   HEADER_NAV,
   SITE,
 } from "@/lib/constants";
+import { auth } from "@/lib/auth";
 
-export function SiteFooter() {
+export async function SiteFooter() {
   const year = new Date().getFullYear();
+  const session = await auth();
+  const signedIn = Boolean(session?.user?.id);
 
   return (
     <footer className="mt-auto border-t border-gray-200 bg-white">
@@ -71,6 +75,18 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
+            {signedIn ? (
+              <li>
+                <form action={siteSignOut}>
+                  <button
+                    type="submit"
+                    className="text-sm text-gray-500 transition hover:text-black"
+                  >
+                    Sign out
+                  </button>
+                </form>
+              </li>
+            ) : null}
           </ul>
         </div>
       </div>

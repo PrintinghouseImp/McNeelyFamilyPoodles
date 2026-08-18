@@ -47,8 +47,8 @@ export default async function NewDepositPage({ searchParams }: Props) {
         Request a deposit
       </h1>
       <p className="mt-2 text-sm text-gray-500">
-        Choose a payment method and optional amount. This records your intent;
-        you still send Venmo / Zelle / PayPal yourself.
+        Choose card (Stripe Checkout redirects you to pay) or Venmo / Zelle /
+        PayPal (you send the transfer yourself; the breeder confirms).
       </p>
 
       <div className="mt-6">

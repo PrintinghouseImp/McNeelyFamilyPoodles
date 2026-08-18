@@ -34,6 +34,8 @@ model User {
   applications     Application[]
   depositRequests  DepositRequest[]
   ownerships       DogOwnership[]
+  payments         PaymentCheckout[] @relation("CustomerPayments")
+  paymentsCreated  PaymentCheckout[] @relation("AdminCreatedPayments")
 }
 
 model Account {
@@ -165,6 +167,7 @@ model Puppy {
   depositRequests DepositRequest[]
   ownerships   DogOwnership[]
   documents    DogDocument[]
+  payments     PaymentCheckout[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
@@ -314,6 +317,54 @@ enum DepositMethod {
   VENMO
   ZELLE
   PAYPAL
+  /// Card payment via Stripe Checkout
+  STRIPE
+}
+
+/// Stripe Checkout payment kind
+enum PaymentKind {
+  DEPOSIT
+  FULL
+}
+
+enum PaymentCheckoutStatus {
+  OPEN
+  COMPLETE
+  EXPIRED
+  CANCELLED
+}
+
+/// Stripe Prebuilt Checkout session (deposit or full sale)
+model PaymentCheckout {
+  id                    String                @id @default(cuid())
+  kind                  PaymentKind
+  status                PaymentCheckoutStatus @default(OPEN)
+  /// Amount charged in USD cents
+  amountCents           Int
+  currency              String                @default("usd")
+  description           String?
+  customerEmail         String?
+  customerName          String?
+  puppyId               String?
+  userId                String?
+  depositRequestId      String?               @unique
+  /// Admin who generated the link (if any)
+  createdByUserId       String?
+  stripeSessionId       String?               @unique
+  stripePaymentIntentId String?
+  checkoutUrl           String?               @db.Text
+  paidAt                DateTime?
+  puppy                 Puppy?                @relation(fields: [puppyId], references: [id], onDelete: SetNull)
+  user                  User?                 @relation("CustomerPayments", fields: [userId], references: [id], onDelete: SetNull)
+  createdBy             User?                 @relation("AdminCreatedPayments", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  depositRequest        DepositRequest?       @relation(fields: [depositRequestId], references: [id], onDelete: SetNull)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@index([puppyId])
+  @@index([kind, status])
 }
 
 enum DepositStatus {
@@ -340,6 +391,7 @@ model DepositRequest {
   paidAt        DateTime?
   user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   puppy         Puppy?        @relation(fields: [puppyId], references: [id], onDelete: SetNull)
+  stripePayment PaymentCheckout?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 

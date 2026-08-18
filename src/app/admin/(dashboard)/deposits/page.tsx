@@ -50,6 +50,11 @@ export default async function AdminDepositsPage({ searchParams }: Props) {
         </h1>
         <p className="mt-1 text-gray-500">
           Mark Venmo / Zelle / PayPal deposits as paid after you receive funds.
+          Card (Stripe) sessions are managed under{" "}
+          <Link href="/admin/payments" className="underline hover:text-black">
+            Stripe payments
+          </Link>
+          .
         </p>
       </div>
 

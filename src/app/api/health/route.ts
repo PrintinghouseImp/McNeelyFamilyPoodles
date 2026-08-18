@@ -22,6 +22,12 @@ export async function GET() {
         process.env.R2_SECRET_ACCESS_KEY &&
         process.env.R2_BUCKET_NAME,
     ),
+    stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY?.trim()),
+    stripePublishableSet: Boolean(
+      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim(),
+    ),
+    stripeWebhookSet: Boolean(process.env.STRIPE_WEBHOOK_SECRET?.trim()),
+    emailConfigured: Boolean(process.env.RESEND_API_KEY?.trim()),
     timestamp: new Date().toISOString(),
   });
 }

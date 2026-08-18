@@ -51,6 +51,7 @@ const DEPOSIT_METHOD_LABELS: Record<string, string> = {
   VENMO: "Venmo",
   ZELLE: "Zelle",
   PAYPAL: "PayPal",
+  STRIPE: "Card (Stripe)",
 };
 
 const DEPOSIT_STATUS_LABELS: Record<string, string> = {

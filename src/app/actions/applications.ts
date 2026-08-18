@@ -59,7 +59,7 @@ export async function submitApplication(
   }
 
   const data = parsed.data;
-  let puppyId: string | null = data.puppyId || null;
+  const puppyId: string | null = data.puppyId || null;
 
   if (puppyId) {
     const puppy = await db.puppy.findFirst({

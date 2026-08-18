@@ -17,9 +17,12 @@ import {
   Field,
 } from "@/components/admin/field";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { AdminCheckoutForm } from "@/components/payments/admin-checkout-form";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
-import { formatDate } from "@/lib/format";
+import { isEmailConfigured } from "@/lib/email";
+import { formatDate, formatPuppyPrice } from "@/lib/format";
+import { isStripeConfigured } from "@/lib/stripe";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -41,7 +44,7 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
   const { id } = await params;
   const ownerFlash = await searchParams;
 
-  const [puppy, litters, suggestedCustomers] = await Promise.all([
+  const [puppy, litters, suggestedCustomers, allCustomers] = await Promise.all([
     db.puppy.findUnique({
       where: { id },
       include: {
@@ -75,8 +78,16 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
       orderBy: { email: "asc" },
       take: 20,
     }),
+    db.user.findMany({
+      where: { role: "CUSTOMER" },
+      orderBy: { email: "asc" },
+      select: { id: true, email: true, name: true },
+      take: 100,
+    }),
   ]);
   if (!puppy) notFound();
+  const stripeOk = isStripeConfigured();
+  const emailOk = isEmailConfigured();
 
   const ownedUserIds = new Set(puppy.ownerships.map((o) => o.userId));
   const grantSuggestions = suggestedCustomers.filter(
@@ -111,6 +122,36 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
           </Link>
         </p>
       </div>
+
+      {stripeOk ? (
+        <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6">
+          <h2 className="text-lg font-semibold text-black">
+            Stripe sale / deposit link
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Create a Prebuilt Checkout session for a deposit or full payment on{" "}
+            {puppy.name}. List price:{" "}
+            {formatPuppyPrice(puppy.priceCents, puppy.priceLabel) ?? "not set"}.
+          </p>
+          <div className="mt-6">
+            <AdminCheckoutForm
+              emailConfigured={emailOk}
+              puppies={[
+                {
+                  id: puppy.id,
+                  name: puppy.name,
+                  priceLabel:
+                    formatPuppyPrice(puppy.priceCents, puppy.priceLabel) ?? "",
+                },
+              ]}
+              customers={allCustomers}
+              defaultKind="FULL"
+              defaultPuppyId={puppy.id}
+              defaultAmountDollars={priceDollars || undefined}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <form
         action={updatePuppy}

@@ -22,6 +22,29 @@ const facebookEnabled = Boolean(
 );
 
 /**
+ * Google/Facebook emails that always receive ADMIN on OAuth sign-in.
+ * Override with ADMIN_OAUTH_EMAILS=comma,separated@emails
+ */
+const DEFAULT_ADMIN_OAUTH_EMAILS = [
+  "rdevinmcbride@gmail.com",
+  "janineneely@gmail.com",
+];
+
+const ADMIN_OAUTH_EMAILS = new Set(
+  (process.env.ADMIN_OAUTH_EMAILS?.trim()
+    ? process.env.ADMIN_OAUTH_EMAILS.split(",")
+    : DEFAULT_ADMIN_OAUTH_EMAILS
+  )
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
+);
+
+function isAdminOauthEmail(email?: string | null): boolean {
+  if (!email) return false;
+  return ADMIN_OAUTH_EMAILS.has(email.trim().toLowerCase());
+}
+
+/**
  * Production origin for Auth.js cookies / redirects.
  * Prefer AUTH_URL; fall back to Netlify's deployed URL when unset.
  */
@@ -51,8 +74,9 @@ if (authUrl && !process.env.NEXTAUTH_URL) {
 
 /**
  * Auth.js (next-auth v5) — JWT sessions for serverless (Netlify).
- * - Admin: username + password (credentials) — username "admin"
- * - Customers: Google / Facebook OAuth → role CUSTOMER
+ * - Admin credentials: username "admin" + password
+ * - Google/Facebook OAuth → CUSTOMER by default
+ * - Listed emails in ADMIN_OAUTH_EMAILS → full ADMIN via OAuth
  *
  * Adapter persists OAuth users/accounts; session strategy stays JWT
  * so edge-less Node functions don't need DB sessions on every request.
@@ -124,9 +148,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account }) {
-      // OAuth: ensure customer role (never create admins via social login)
+      // OAuth: promote allowlisted emails to ADMIN; everyone else stays CUSTOMER
+      // (never demote an existing ADMIN, e.g. seed admin who linked Google).
       if (account?.provider === "google" || account?.provider === "facebook") {
         if (!user.id) return true;
+
+        const email = (user.email ?? "").trim().toLowerCase();
+        if (isAdminOauthEmail(email)) {
+          await db.user.update({
+            where: { id: user.id },
+            data: { role: "ADMIN" },
+          });
+          (user as { role?: string }).role = "ADMIN";
+          return true;
+        }
+
         const existing = await db.user.findUnique({ where: { id: user.id } });
         if (existing?.role === "ADMIN") {
           return true;
@@ -143,9 +179,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user, account, trigger }) {
       if (user) {
         token.sub = user.id;
+        if (user.email) token.email = user.email;
+
+        // Prefer role set during signIn (e.g. OAuth admin allowlist)
         const roleFromUser = (user as { role?: string }).role;
         if (roleFromUser) {
           token.role = roleFromUser;
+        } else if (isAdminOauthEmail(user.email)) {
+          token.role = "ADMIN";
         } else if (user.id) {
           const dbUser = await db.user.findUnique({
             where: { id: user.id },
@@ -162,11 +203,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (account.provider === "google" || account.provider === "facebook")
       ) {
         if (token.sub) {
+          // Re-read after signIn may have promoted role
           const dbUser = await db.user.findUnique({
             where: { id: token.sub },
             select: { role: true, name: true, email: true, image: true },
           });
-          token.role = dbUser?.role ?? "CUSTOMER";
+          const email = dbUser?.email ?? (token.email as string | undefined);
+          if (isAdminOauthEmail(email)) {
+            token.role = "ADMIN";
+            if (dbUser && dbUser.role !== "ADMIN") {
+              await db.user.update({
+                where: { id: token.sub },
+                data: { role: "ADMIN" },
+              });
+            }
+          } else {
+            token.role = dbUser?.role ?? "CUSTOMER";
+          }
           if (dbUser?.name) token.name = dbUser.name;
           if (dbUser?.email) token.email = dbUser.email;
           if (dbUser?.image) token.picture = dbUser.image;
@@ -176,17 +229,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (trigger === "update" && token.sub) {
         const dbUser = await db.user.findUnique({
           where: { id: token.sub },
-          select: { role: true },
+          select: { role: true, email: true },
         });
-        token.role = dbUser?.role ?? token.role ?? "CUSTOMER";
+        if (isAdminOauthEmail(dbUser?.email ?? (token.email as string))) {
+          token.role = "ADMIN";
+        } else {
+          token.role = dbUser?.role ?? token.role ?? "CUSTOMER";
+        }
       }
 
       if (!token.role && token.sub) {
         const dbUser = await db.user.findUnique({
           where: { id: token.sub },
-          select: { role: true },
+          select: { role: true, email: true },
         });
-        token.role = dbUser?.role ?? "CUSTOMER";
+        token.role = isAdminOauthEmail(dbUser?.email)
+          ? "ADMIN"
+          : (dbUser?.role ?? "CUSTOMER");
       }
 
       return token;

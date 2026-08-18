@@ -87,6 +87,7 @@ export function DepositForm({
 
       <Field label="Payment method">
         <select name="method" required className={selectClass} defaultValue="VENMO">
+          <option value="STRIPE">Card (Stripe Checkout)</option>
           <option value="VENMO">
             Venmo{handles.venmo ? ` (${handles.venmo})` : ""}
           </option>
@@ -101,7 +102,7 @@ export function DepositForm({
 
       <Field
         label="Deposit amount (USD)"
-        hint="Optional — leave blank if you will confirm amount with the breeder"
+        hint="Required for card payments · optional for Venmo/Zelle/PayPal"
       >
         <input
           name="amountDollars"

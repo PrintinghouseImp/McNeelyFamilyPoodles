@@ -77,6 +77,7 @@ export const ADMIN_NAV = [
   { href: "/admin/ownerships", label: "Ownerships" },
   { href: "/admin/applications", label: "Applications" },
   { href: "/admin/deposits", label: "Deposits" },
+  { href: "/admin/payments", label: "Stripe payments" },
   { href: "/admin/articles", label: "Articles" },
   { href: "/admin/forever-homes", label: "Forever Homes" },
   { href: "/admin/shop", label: "Shop" },
@@ -87,6 +88,6 @@ export const ADMIN_NAV = [
 export const PORTAL_NAV = [
   { href: "/portal", label: "Dashboard" },
   { href: "/portal/applications", label: "My applications" },
-  { href: "/portal/deposits", label: "Deposits" },
+  { href: "/portal/deposits", label: "Deposits & payments" },
   { href: "/portal/dogs", label: "My dogs" },
 ] as const;

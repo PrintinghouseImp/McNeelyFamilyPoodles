@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const DEPOSIT_METHODS = ["VENMO", "ZELLE", "PAYPAL"] as const;
+export const DEPOSIT_METHODS = ["VENMO", "ZELLE", "PAYPAL", "STRIPE"] as const;
 export const DEPOSIT_STATUSES = [
   "REQUESTED",
   "AWAITING_PAYMENT",

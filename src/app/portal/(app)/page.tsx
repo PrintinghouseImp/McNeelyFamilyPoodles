@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { OpenPaymentsPanel } from "@/components/payments/open-payments-panel";
 import { requirePortalUser } from "@/lib/portal";
+import { getPortalOpenPayments } from "@/lib/portal-payments";
 import { db } from "@/lib/db";
 
 export const metadata = {
@@ -9,12 +11,15 @@ export const metadata = {
 export default async function PortalHomePage() {
   const session = await requirePortalUser();
   const userId = session.user.id;
+  const email = session.user.email;
 
-  const [applicationCount, depositCount, dogCount] = await Promise.all([
-    db.application.count({ where: { userId } }),
-    db.depositRequest.count({ where: { userId } }),
-    db.dogOwnership.count({ where: { userId } }),
-  ]);
+  const [applicationCount, depositCount, dogCount, openPayments] =
+    await Promise.all([
+      db.application.count({ where: { userId } }),
+      db.depositRequest.count({ where: { userId } }),
+      db.dogOwnership.count({ where: { userId } }),
+      getPortalOpenPayments(userId, email),
+    ]);
 
   const firstName =
     session.user.name?.split(" ")[0] ||
@@ -31,10 +36,13 @@ export default async function PortalHomePage() {
     },
     {
       href: "/portal/deposits",
-      label: "Deposit requests",
-      description: "Venmo, Zelle, or PayPal reservation requests",
-      count: depositCount,
-      countLabel: "requests",
+      label: "Deposits & payments",
+      description:
+        openPayments.length > 0
+          ? `${openPayments.length} open payment link${openPayments.length === 1 ? "" : "s"} waiting`
+          : "Card (Stripe), Venmo, Zelle, or PayPal",
+      count: depositCount + openPayments.length,
+      countLabel: openPayments.length > 0 ? "incl. open pay" : "requests",
     },
     {
       href: "/portal/dogs",
@@ -58,8 +66,8 @@ export default async function PortalHomePage() {
             as <span className="text-gray-700">{session.user.email}</span>
           </>
         ) : null}
-        . Apply for a puppy, request a deposit, and—once you&apos;ve joined
-        the family—view your personal documents here.
+        . Apply for a puppy, pay deposits or balances, and—once you&apos;ve
+        joined the family—view your personal documents here.
       </p>
 
       {session.user.role === "ADMIN" ? (
@@ -70,6 +78,14 @@ export default async function PortalHomePage() {
           </Link>
         </p>
       ) : null}
+
+      <div className="mt-8">
+        <OpenPaymentsPanel
+          payments={openPayments}
+          title="You have a payment waiting"
+          compact
+        />
+      </div>
 
       <ul className="mt-8 grid gap-4 sm:grid-cols-3">
         {cards.map((card) => (
@@ -99,6 +115,12 @@ export default async function PortalHomePage() {
           className="inline-flex rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-900"
         >
           Apply for a puppy
+        </Link>
+        <Link
+          href="/portal/deposits"
+          className="inline-flex rounded-full border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:text-black"
+        >
+          Deposits & payments
         </Link>
         <Link
           href="/puppies"

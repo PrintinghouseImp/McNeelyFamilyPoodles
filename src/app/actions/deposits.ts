@@ -8,9 +8,11 @@ import {
 } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { requireAdmin } from "@/lib/admin";
+import { createAuthorizedCheckout } from "@/lib/checkout";
 import { db } from "@/lib/db";
 import { optionalStr, str } from "@/lib/form";
 import { isPortalRole } from "@/lib/portal";
+import { isStripeConfigured } from "@/lib/stripe";
 import {
   depositRequestSchema,
   depositStatusSchema,
@@ -80,7 +82,7 @@ export async function submitDepositRequest(
     };
   }
 
-  let puppyId: string | null = data.puppyId || null;
+  const puppyId: string | null = data.puppyId || null;
   if (puppyId) {
     const puppy = await db.puppy.findFirst({
       where: { id: puppyId, isPublished: true },
@@ -91,21 +93,80 @@ export async function submitDepositRequest(
     }
   }
 
-  await db.depositRequest.create({
+  const method = data.method as DepositMethod;
+  const useStripe = method === "STRIPE";
+
+  if (useStripe) {
+    if (!isStripeConfigured()) {
+      return {
+        error:
+          "Card payments are not available right now. Choose Venmo, Zelle, or PayPal, or contact the breeder.",
+      };
+    }
+    if (amountCents == null || amountCents < 50) {
+      return {
+        error: "Card deposits need an amount of at least $0.50.",
+        fieldErrors: { amountDollars: ["Required for Stripe"] },
+      };
+    }
+  }
+
+  const deposit = await db.depositRequest.create({
     data: {
       userId: session.user.id,
       puppyId,
       name: data.name,
       email: data.email,
       phone: data.phone || null,
-      method: data.method as DepositMethod,
+      method,
       amountCents,
       customerNote: data.customerNote || null,
-      status: DepositStatus.REQUESTED,
+      status: useStripe
+        ? DepositStatus.AWAITING_PAYMENT
+        : DepositStatus.REQUESTED,
     },
   });
 
   revalidateDeposits();
+
+  if (useStripe) {
+    try {
+      const checkout = await createAuthorizedCheckout(
+        {
+          kind: "DEPOSIT",
+          depositRequestId: deposit.id,
+          amountCents: amountCents!,
+          puppyId,
+          customerEmail: data.email,
+          customerName: data.name,
+        },
+        {
+          userId: session.user.id,
+          role: session.user.role ?? "CUSTOMER",
+          email: session.user.email,
+          name: session.user.name,
+          isAdmin: session.user.role === "ADMIN",
+        },
+      );
+      redirect(checkout.checkoutUrl);
+    } catch (err) {
+      if (
+        err &&
+        typeof err === "object" &&
+        "digest" in err &&
+        String((err as { digest?: string }).digest).startsWith("NEXT_REDIRECT")
+      ) {
+        throw err;
+      }
+      return {
+        error:
+          err instanceof Error
+            ? err.message
+            : "Could not start Stripe Checkout. Your request was saved — pay from Deposits.",
+      };
+    }
+  }
+
   redirect("/portal/deposits?submitted=1");
 }
 

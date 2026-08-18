@@ -25,7 +25,7 @@ Source of truth: `src/lib/constants.ts` (`BRAND`) and `src/app/globals.css`.
 
 - **Public:** Lander, Sires/Dams, Puppies by litter (links to sire/dam), About, Technical articles, Application, Social, Shop
 - **Admin:** Dog CRUD, status/price/specs, phone camera photos (hero + gallery), medical records, ownership grants
-- **Portal:** Google/Facebook login, applications, deposit requests (Venmo/Zelle/PayPal), post-adoption document vault (owned dogs’ medical files)
+- **Portal:** Google/Facebook login, applications, deposit requests (Venmo/Zelle/PayPal or **Stripe card Checkout**), full-sale payment links, post-adoption document vault (owned dogs’ medical files)
 - **Security:** Role separation, Cloudflare Turnstile for email signup (OAuth skips captcha)
 - **Mobile:** Responsive for iPhone and Android
 
@@ -36,6 +36,7 @@ Source of truth: `src/lib/constants.ts` (`BRAND`) and `src/app/globals.css`.
 - Auth.js (admin credentials + Google/Facebook for customers)
 - **Cloudflare R2** for images/documents — public CDN `https://images.mcneelyfamilypoodles.com`
 - Zod + Cloudflare Turnstile (planned)
+- **Stripe** Prebuilt Checkout for card deposits and full sales (`/admin/payments`, `/api/stripe/checkout`)
 - Deploy target: **Netlify** (storefront)
 
 ## Quick start
@@ -81,6 +82,33 @@ This app does **not** use a special Supabase client for core data. Prisma uses a
    ```
 
 Prisma stays unchanged: same `schema.prisma`, migrations, and client. Only the host behind `DATABASE_URL` is Supabase.
+
+### Payments: Stripe Prebuilt Checkout
+
+Card deposits and full puppy sales use [Stripe Checkout](https://stripe.com/docs/payments/checkout) (hosted page).
+
+| Env var | Purpose |
+|---------|---------|
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Publishable key (`pk_…`) |
+| `STRIPE_SECRET_KEY` | Secret key (`sk_…`) — server only |
+| `STRIPE_WEBHOOK_SECRET` | Optional webhook signing secret for `/api/stripe/webhook` |
+
+- **Admin:** `/admin/payments` or a puppy edit page → generate deposit/full Checkout links.
+- **Portal:** `/portal/deposits` → **Pay with card** on open links / Stripe deposits.
+- **API:** `POST /api/stripe/checkout` (signed-in admin or customer).
+- **Success / cancel:** `/checkout/success`, `/checkout/cancel`.
+- Local webhook testing: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
+
+Without the webhook secret, the success page still verifies the session with Stripe and marks the payment paid.
+
+### Email: Resend (payment links)
+
+| Env var | Purpose |
+|---------|---------|
+| `RESEND_API_KEY` | Resend API key |
+| `EMAIL_FROM` | From address (verified domain in production) |
+
+When admin generates a Checkout link with **Email checkout link** checked, Resend sends the Stripe URL to the buyer. The same link shows on `/portal` and `/portal/deposits` for signed-in users whose email matches (or whose portal user was selected).
 
 ### Media: Cloudflare R2 (`images.mcneelyfamilypoodles.com`)
 

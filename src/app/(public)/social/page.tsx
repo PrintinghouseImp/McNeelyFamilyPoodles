@@ -1,44 +1,18 @@
-import Link from "next/link";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
+import { DEFAULT_SOCIAL_IMAGES, SITE } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
-import { SITE } from "@/lib/constants";
+import {
+  getSocialProfiles,
+  isLiveSocialUrl,
+  type SocialProfile,
+} from "@/lib/settings";
 
 export const metadata = {
   title: "Social",
-  description: `Follow ${SITE.name} on Instagram and Facebook.`,
+  description: `Follow ${SITE.name} on Instagram and Facebook — ranch photos, litter updates, and life with our miniature poodles.`,
 };
-
-const PLACEHOLDER_POSTS = [
-  {
-    id: "placeholder-1",
-    platform: "Instagram",
-    caption:
-      "Placeholder post — puppies in the play yard. Replace with a real Instagram URL and caption from admin.",
-    imageUrl: null as string | null,
-    postUrl: null as string | null,
-    postedAt: null as Date | null,
-  },
-  {
-    id: "placeholder-2",
-    platform: "Facebook",
-    caption:
-      "Placeholder post — meet our latest litter highlights. Curated posts will appear here once published.",
-    imageUrl: null as string | null,
-    postUrl: null as string | null,
-    postedAt: null as Date | null,
-  },
-  {
-    id: "placeholder-3",
-    platform: "Instagram",
-    caption:
-      "Placeholder post — life on the ranch. No live Meta feed required in v1.",
-    imageUrl: null as string | null,
-    postUrl: null as string | null,
-    postedAt: null as Date | null,
-  },
-] as const;
 
 function platformLabel(platform: string) {
   const p = platform.trim().toLowerCase();
@@ -47,208 +21,176 @@ function platformLabel(platform: string) {
   return platform || "Social";
 }
 
+function fallbackPostImage(index: number) {
+  const list = DEFAULT_SOCIAL_IMAGES.posts;
+  return list[index % list.length];
+}
+
 export default async function SocialPage() {
-  const [settings, posts] = await Promise.all([
-    db.siteSetting.findMany({
-      where: { key: { in: ["instagram_url", "facebook_url"] } },
-    }),
+  const [profiles, posts] = await Promise.all([
+    getSocialProfiles(),
     db.socialPost.findMany({
       where: { isPublished: true },
-      orderBy: [{ sortOrder: "asc" }, { postedAt: "desc" }, { createdAt: "desc" }],
+      orderBy: [
+        { sortOrder: "asc" },
+        { postedAt: "desc" },
+        { createdAt: "desc" },
+      ],
     }),
   ]);
 
-  const settingMap = Object.fromEntries(
-    settings.map((s) => [s.key, s.value.trim()]),
-  );
-  const instagramUrl = settingMap.instagram_url || "";
-  const facebookUrl = settingMap.facebook_url || "";
-
-  const hasCurated = posts.length > 0;
-  const feed = hasCurated
-    ? posts.map((p) => ({
-        id: p.id,
-        platform: platformLabel(p.platform),
-        caption: p.caption,
-        imageUrl: p.imageUrl,
-        postUrl: p.postUrl,
-        postedAt: p.postedAt,
-      }))
-    : PLACEHOLDER_POSTS.map((p) => ({ ...p }));
+  const profileCards: SocialProfile[] = [profiles.instagram, profiles.facebook];
 
   return (
     <>
       <PageHero
-        title="Social"
-        subtitle="Follow along on Instagram and Facebook"
+        title="Follow along"
+        subtitle="Ranch life, litter updates, and miniature poodles — on Instagram and Facebook"
       />
       <SectionShell>
-        <div className="mx-auto mb-12 grid max-w-2xl gap-4 sm:grid-cols-2">
-          <SocialProfileLink
-            label="Instagram"
-            href={instagramUrl}
-            description="Photos and reels from the ranch"
-          />
-          <SocialProfileLink
-            label="Facebook"
-            href={facebookUrl}
-            description="Updates for families and friends"
-          />
-        </div>
-
-        <div className="mb-6 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight text-black">
-              {hasCurated ? "Recent posts" : "Featured highlights"}
-            </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              {hasCurated
-                ? "Curated posts managed by the breeder (no live Meta firehose required)."
-                : "Placeholder cards until curated posts are published in admin."}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {feed.map((post) => (
-            <article
-              key={post.id}
-              className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white"
-            >
-              {post.imageUrl ? (
-                <div className="photo-frame">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={post.imageUrl}
-                    alt={
-                      post.caption?.slice(0, 80) || `${post.platform} post`
-                    }
-                    className="photo-img"
-                  />
-                </div>
-              ) : (
-                <div className="photo-frame min-h-[10rem]" aria-hidden>
-                  <span className="py-12 text-sm font-medium text-gray-400">
-                    {post.platform}
-                  </span>
-                </div>
-              )}
-              <div className="flex flex-1 flex-col gap-2 p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                    {post.platform}
-                  </span>
-                  {post.postedAt ? (
-                    <time
-                      dateTime={post.postedAt.toISOString()}
-                      className="text-xs text-gray-400"
-                    >
-                      {formatDate(post.postedAt, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </time>
-                  ) : null}
-                </div>
-                {post.caption ? (
-                  <p className="line-clamp-4 text-sm text-gray-700">
-                    {post.caption}
-                  </p>
-                ) : (
-                  <p className="text-sm text-gray-500">No caption.</p>
-                )}
-                {post.postUrl ? (
-                  <a
-                    href={post.postUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-auto pt-2 text-sm text-gray-500 transition hover:text-black"
-                  >
-                    View on {post.platform} →
-                  </a>
-                ) : (
-                  <p className="mt-auto pt-2 text-xs text-gray-400">
-                    Link available when a post URL is added
-                  </p>
-                )}
-              </div>
-            </article>
+        <div className="mx-auto mb-16 grid max-w-3xl gap-6 sm:grid-cols-2">
+          {profileCards.map((profile) => (
+            <SocialProfileCard key={profile.platform} profile={profile} />
           ))}
         </div>
 
-        {!hasCurated ? (
-          <p className="mx-auto mt-10 max-w-xl text-center text-sm text-gray-400">
-            Live Instagram/Facebook auto-feeds need Meta app setup later. For
-            now, profile buttons use{" "}
-            <code className="rounded bg-gray-100 px-1 py-0.5 text-gray-600">
-              SiteSetting
-            </code>{" "}
-            and cards use{" "}
-            <code className="rounded bg-gray-100 px-1 py-0.5 text-gray-600">
-              SocialPost
-            </code>{" "}
-            (or these placeholders).
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold tracking-tight text-black">
+            From the ranch
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
+            A few favorite posts. Follow us for the full feed.
           </p>
-        ) : null}
+        </div>
+
+        {posts.length === 0 ? (
+          <p className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-12 text-center text-sm text-gray-500">
+            New photos will appear here as we share them. In the meantime,
+            follow along on Instagram or Facebook above.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post, index) => {
+              const platform = platformLabel(post.platform);
+              const imageUrl = post.imageUrl || fallbackPostImage(index);
+              const live = isLiveSocialUrl(post.postUrl);
+              const caption = post.caption?.trim() || "";
+              const dateLabel = formatDate(post.postedAt, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              });
+
+              const body = (
+                <>
+                  <div className="aspect-square overflow-hidden bg-gray-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imageUrl}
+                      alt={caption.slice(0, 80) || `${platform} post from ${SITE.name}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col gap-3 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-gray-600">
+                        {platform}
+                      </span>
+                      {dateLabel ? (
+                        <time
+                          dateTime={
+                            post.postedAt
+                              ? post.postedAt.toISOString()
+                              : undefined
+                          }
+                          className="text-xs text-gray-400"
+                        >
+                          {dateLabel}
+                        </time>
+                      ) : null}
+                    </div>
+                    {caption ? (
+                      <p className="line-clamp-3 text-sm leading-relaxed text-gray-700">
+                        {caption}
+                      </p>
+                    ) : null}
+                  </div>
+                </>
+              );
+
+              const cardClass =
+                "group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:border-gray-300 hover:shadow-sm";
+
+              if (live) {
+                return (
+                  <a
+                    key={post.id}
+                    href={post.postUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cardClass}
+                  >
+                    {body}
+                  </a>
+                );
+              }
+
+              return (
+                <article key={post.id} className={cardClass}>
+                  {body}
+                </article>
+              );
+            })}
+          </div>
+        )}
       </SectionShell>
     </>
   );
 }
 
-function SocialProfileLink({
-  label,
-  href,
-  description,
-}: {
-  label: string;
-  href: string;
-  description: string;
-}) {
-  const valid =
-    href.startsWith("http://") || href.startsWith("https://");
-  const isPlaceholder =
-    !valid ||
-    href === "https://instagram.com/" ||
-    href === "https://facebook.com/" ||
-    href === "https://www.instagram.com/" ||
-    href === "https://www.facebook.com/";
+function SocialProfileCard({ profile }: { profile: SocialProfile }) {
+  const cardClass =
+    "flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white";
 
-  const className =
-    "flex flex-col rounded-2xl border border-gray-200 bg-white p-5 text-left transition hover:border-gray-300 hover:shadow-sm";
-
-  const body = (
+  const inner = (
     <>
-      <span className="text-base font-semibold text-black">{label}</span>
-      <span className="mt-1 text-sm text-gray-500">{description}</span>
-      <span className="mt-3 text-sm text-gray-500">
-        {isPlaceholder ? "Add your profile URL in site settings" : `Open ${label} →`}
-      </span>
+      <div className="aspect-square overflow-hidden bg-gray-100">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={profile.imageUrl}
+          alt={`${SITE.name} on ${profile.platform}`}
+          className="h-full w-full object-cover"
+        />
+      </div>
+      <div className="flex flex-1 flex-col items-start gap-4 p-5">
+        <h2 className="text-lg font-semibold tracking-tight text-black">
+          {profile.platform}
+        </h2>
+        {profile.isLive ? (
+          <span className="inline-flex rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition group-hover:bg-gray-900">
+            Follow
+          </span>
+        ) : (
+          <span className="inline-flex rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-400">
+            Follow
+          </span>
+        )}
+      </div>
     </>
   );
 
-  if (!isPlaceholder && valid) {
+  if (profile.isLive) {
     return (
       <a
-        href={href}
+        href={profile.href}
         target="_blank"
         rel="noopener noreferrer"
-        className={className}
+        className={`${cardClass} group transition hover:border-gray-300 hover:shadow-sm`}
       >
-        {body}
+        {inner}
       </a>
     );
   }
 
-  return (
-    <div className={`${className} opacity-90`}>
-      {body}
-      <Link
-        href="/about"
-        className="mt-2 text-xs text-gray-400 hover:text-black"
-      >
-        Learn about us on About →
-      </Link>
-    </div>
-  );
+  return <div className={cardClass}>{inner}</div>;
 }

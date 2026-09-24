@@ -21,7 +21,12 @@ import { AdminCheckoutForm } from "@/components/payments/admin-checkout-form";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 import { isEmailConfigured } from "@/lib/email";
-import { formatDate, formatPuppyPrice } from "@/lib/format";
+import {
+  formatDate,
+  formatPuppyPrice,
+  formatPuppyStatus,
+  PUPPY_STATUSES,
+} from "@/lib/format";
 import { isStripeConfigured } from "@/lib/stripe";
 
 type Props = {
@@ -170,11 +175,11 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
           </Field>
           <Field label="Status">
             <select name="status" className={selectClass} defaultValue={puppy.status}>
-              <option value="AVAILABLE">Available</option>
-              <option value="RESERVED">Reserved</option>
-              <option value="SOLD">Sold</option>
-              <option value="GUARDIANSHIP">Guardianship</option>
-              <option value="UNAVAILABLE">Unavailable</option>
+              {PUPPY_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {formatPuppyStatus(status)}
+                </option>
+              ))}
             </select>
           </Field>
         </div>

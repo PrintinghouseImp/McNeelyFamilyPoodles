@@ -4,6 +4,7 @@ import {
   signInWithGoogle,
 } from "@/app/portal/actions";
 import { oauthProviders } from "@/lib/auth";
+import { safePortalCallback } from "@/lib/portal";
 import { SITE } from "@/lib/constants";
 import { btnPrimary, btnSecondary } from "@/components/admin/field";
 
@@ -25,11 +26,7 @@ type Props = {
  */
 export default async function PortalLoginPage({ searchParams }: Props) {
   const params = await searchParams;
-  const callbackUrl =
-    params.callbackUrl?.startsWith("/portal") &&
-    !params.callbackUrl.startsWith("/portal/login")
-      ? params.callbackUrl
-      : "/portal";
+  const callbackUrl = safePortalCallback(params.callbackUrl);
 
   const errorMessage =
     params.error === "OAuthAccountNotLinked"

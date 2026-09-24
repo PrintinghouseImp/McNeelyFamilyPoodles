@@ -118,9 +118,7 @@ export async function deleteParent(formData: FormData) {
     where: { OR: [{ damId: id }, { sireId: id }] },
   });
   if (litterCount > 0) {
-    throw new Error(
-      "Cannot delete a parent that is linked to litters. Unlink or delete those litters first.",
-    );
+    redirect(`/admin/parents/${id}?error=linked-litters`);
   }
 
   await db.parentDog.delete({ where: { id } });

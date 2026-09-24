@@ -10,6 +10,7 @@ import {
 import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
+import { formatPuppyStatus, PUPPY_STATUSES } from "@/lib/format";
 
 export const metadata = { title: "Admin · New puppy" };
 
@@ -47,11 +48,11 @@ export default async function NewPuppyPage() {
           </Field>
           <Field label="Status">
             <select name="status" className={selectClass} defaultValue="AVAILABLE">
-              <option value="AVAILABLE">Available</option>
-              <option value="RESERVED">Reserved</option>
-              <option value="SOLD">Sold</option>
-              <option value="GUARDIANSHIP">Guardianship</option>
-              <option value="UNAVAILABLE">Unavailable</option>
+              {PUPPY_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {formatPuppyStatus(status)}
+                </option>
+              ))}
             </select>
           </Field>
         </div>

@@ -52,7 +52,9 @@ export async function grantDogOwnership(formData: FormData) {
     });
   }
 
-  const user = await db.user.findUnique({ where: { email } });
+  const user = await db.user.findFirst({
+    where: { email: { equals: email, mode: "insensitive" } },
+  });
   if (!user) {
     puppyOwnerRedirect(puppyId, {
       ownerError:

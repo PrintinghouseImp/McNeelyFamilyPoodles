@@ -17,7 +17,10 @@ import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
+};
 
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
@@ -25,9 +28,10 @@ export async function generateMetadata({ params }: Props) {
   return { title: parent ? `Admin · ${parent.name}` : "Admin · Parent" };
 }
 
-export default async function EditParentPage({ params }: Props) {
+export default async function EditParentPage({ params, searchParams }: Props) {
   await requireAdmin();
   const { id } = await params;
+  const { error } = await searchParams;
 
   const parent = await db.parentDog.findUnique({
     where: { id },
@@ -209,6 +213,13 @@ export default async function EditParentPage({ params }: Props) {
           View all for this dog →
         </Link>
       </section>
+
+      {error === "linked-litters" ? (
+        <p className="mt-10 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          This parent is on a litter, so they were not deleted. Remove them
+          from those litters first, or uncheck Published and save.
+        </p>
+      ) : null}
 
       <form action={deleteParent} className="mt-10 rounded-2xl border border-red-100 bg-white p-6">
         <input type="hidden" name="id" value={parent.id} />

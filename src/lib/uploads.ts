@@ -1,11 +1,13 @@
-import { mkdir, writeFile, unlink } from "fs/promises";
+import { mkdir, readFile, writeFile, unlink } from "fs/promises";
 import path from "path";
 import { randomBytes } from "crypto";
 import {
   getR2PublicBaseUrl,
   isR2Configured,
+  isR2PublicUrl,
   objectKeyFromPublicUrl,
   r2DeleteObject,
+  r2GetObject,
   r2PutObject,
 } from "@/lib/r2";
 
@@ -210,6 +212,58 @@ export async function deleteUpload(url: string) {
 /** @deprecated Use deleteUpload — kept for existing admin action imports */
 export async function deleteLocalUpload(url: string) {
   return deleteUpload(url);
+}
+
+function contentTypeFromName(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.endsWith(".pdf")) return "application/pdf";
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".webp")) return "image/webp";
+  if (lower.endsWith(".gif")) return "image/gif";
+  if (lower.endsWith(".heic") || lower.endsWith(".heif")) return "image/heic";
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  return "application/octet-stream";
+}
+
+/** Object keys we stored ourselves. Rejects traversal and off-bucket paths. */
+export function isSafeUploadKey(key: string): boolean {
+  if (!key.startsWith("uploads/")) return false;
+  if (key.includes("..") || key.includes("\\") || key.includes("//")) return false;
+  return true;
+}
+
+/**
+ * Read a file this app stored (local public/uploads or our R2 bucket).
+ * Never fetches an arbitrary URL. Returns null if the path is not ours.
+ */
+export async function readStoredUpload(url: string): Promise<{
+  body: Buffer;
+  contentType: string;
+} | null> {
+  if (!url || url.includes("\0")) return null;
+
+  if (url.startsWith("/uploads/") && isSafeUploadKey(url.slice(1))) {
+    const root = path.resolve(process.cwd(), "public", "uploads");
+    const abs = path.resolve(process.cwd(), "public", url.slice(1));
+    const relative = path.relative(root, abs);
+    if (relative.startsWith("..") || path.isAbsolute(relative)) return null;
+    try {
+      const body = await readFile(abs);
+      return { body, contentType: contentTypeFromName(abs) };
+    } catch {
+      return null;
+    }
+  }
+
+  if (!isR2PublicUrl(url)) return null;
+  const key = objectKeyFromPublicUrl(url);
+  if (!key || !isSafeUploadKey(key)) return null;
+  const object = await r2GetObject(key);
+  if (!object) return null;
+  return {
+    body: object.body,
+    contentType: object.contentType || contentTypeFromName(key),
+  };
 }
 
 /** Base URL for images when using R2 (for docs / UI hints). */

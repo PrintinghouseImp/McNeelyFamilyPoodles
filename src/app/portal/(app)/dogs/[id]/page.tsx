@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { btnPrimary, btnSecondary } from "@/components/admin/field";
-import { db } from "@/lib/db";
 import { formatDate, formatSex } from "@/lib/format";
 import { requireOwnedPuppy } from "@/lib/portal";
 import { isImageUrl, isPdfUrl } from "@/lib/uploads";
@@ -9,11 +8,8 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
-  const puppy = await db.puppy.findUnique({
-    where: { id },
-    select: { name: true },
-  });
-  return { title: puppy ? `My dog · ${puppy.name}` : "My dog" };
+  const { puppy } = await requireOwnedPuppy(id);
+  return { title: `My dog · ${puppy.name}` };
 }
 
 export default async function PortalDogDetailPage({ params }: Props) {
@@ -131,12 +127,7 @@ export default async function PortalDogDetailPage({ params }: Props) {
                     ) : null}
                   </div>
                   {doc.fileUrl ? (
-                    <a
-                      href={doc.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={btnPrimary}
-                    >
+                    <a href={`/api/vault/${doc.id}`} className={btnPrimary}>
                       View / download
                     </a>
                   ) : (

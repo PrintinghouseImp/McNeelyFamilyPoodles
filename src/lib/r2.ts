@@ -1,5 +1,6 @@
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -120,6 +121,32 @@ export async function r2PutObject(params: {
 
   const publicUrl = `${getR2PublicBaseUrl()}/${params.key}`;
   return { key: params.key, publicUrl };
+}
+
+/** Read an object with the server credentials. Does not return a public URL. */
+export async function r2GetObject(key: string): Promise<{
+  body: Buffer;
+  contentType: string | undefined;
+} | null> {
+  const bucket = process.env.R2_BUCKET_NAME?.trim();
+  if (!bucket || !isR2Configured()) return null;
+
+  try {
+    const res = await getClient().send(
+      new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      }),
+    );
+    if (!res.Body) return null;
+    const bytes = await res.Body.transformToByteArray();
+    return {
+      body: Buffer.from(bytes),
+      contentType: res.ContentType,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function r2DeleteObject(key: string): Promise<void> {

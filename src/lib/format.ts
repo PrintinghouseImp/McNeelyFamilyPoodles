@@ -25,14 +25,32 @@ export function formatSex(sex: Sex): string {
 
 const STATUS_LABELS: Record<PuppyStatus, string> = {
   AVAILABLE: "Available",
-  RESERVED: "Reserved",
+  RESERVED: "Under deposit",
   SOLD: "Sold",
-  GUARDIANSHIP: "Guardianship",
-  UNAVAILABLE: "Unavailable",
+  GUARDIANSHIP: "Guardian",
+  UNAVAILABLE: "Not available",
 };
+
+export const PUPPY_STATUSES: PuppyStatus[] = [
+  "AVAILABLE",
+  "RESERVED",
+  "SOLD",
+  "GUARDIANSHIP",
+  "UNAVAILABLE",
+];
 
 export function formatPuppyStatus(status: PuppyStatus): string {
   return STATUS_LABELS[status] ?? status;
+}
+
+/** Public price: only puppies marked Available. Admin screens keep using formatPuppyPrice. */
+export function publicPuppyPrice(
+  status: PuppyStatus,
+  priceCents: number | null | undefined,
+  priceLabel?: string | null,
+): string | null {
+  if (status !== "AVAILABLE") return null;
+  return formatPuppyPrice(priceCents, priceLabel);
 }
 
 const APPLICATION_STATUS_LABELS: Record<string, string> = {

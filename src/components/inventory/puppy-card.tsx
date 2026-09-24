@@ -3,7 +3,7 @@ import type { PuppyStatus, Sex } from "@/generated/prisma/client";
 import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { PhotoPlaceholder } from "@/components/inventory/photo-placeholder";
 import { StatusBadge } from "@/components/inventory/status-badge";
-import { formatPuppyPrice, formatSex } from "@/lib/format";
+import { formatSex, publicPuppyPrice } from "@/lib/format";
 
 export type PuppyCardData = {
   slug: string;
@@ -23,7 +23,11 @@ type PuppyCardProps = {
 export function PuppyCard({ puppy }: PuppyCardProps) {
   const primary =
     puppy.photos?.find((p) => p.isPrimary) ?? puppy.photos?.[0] ?? null;
-  const price = formatPuppyPrice(puppy.priceCents, puppy.priceLabel);
+  const price = publicPuppyPrice(
+    puppy.status,
+    puppy.priceCents,
+    puppy.priceLabel,
+  );
 
   return (
     <Link

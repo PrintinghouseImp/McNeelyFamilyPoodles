@@ -16,6 +16,21 @@ export const MEDIA_CDN = {
 } as const;
 
 /**
+ * Default ranch photos for the public Social page when a SiteSetting
+ * thumbnail URL is empty, or a curated SocialPost has no image.
+ */
+export const DEFAULT_SOCIAL_IMAGES = {
+  instagram: "/legacy/puppies/20250731_froggie_arsibalt/20251121_Pepper_01.webp",
+  facebook: "/legacy/puppies/20250731_froggie_arsibalt/20251124_luna_01.webp",
+  posts: [
+    "/legacy/puppies/20250731_froggie_arsibalt/20251121_Pepper_01.webp",
+    "/legacy/puppies/20250731_froggie_arsibalt/20251124_luna_01.webp",
+    "/legacy/puppies/20250731_froggie_arsibalt/20251124_junebug_01.webp",
+    "/legacy/puppies/20250731_froggie_arsibalt/20251125_bowie_01.webp",
+  ],
+} as const;
+
+/**
  * Visual style (Good Dog–inspired): white background, black lettering,
  * grayscale links and unhighlighted fields. Use color sparingly (e.g. status).
  * CSS tokens: `src/app/globals.css`

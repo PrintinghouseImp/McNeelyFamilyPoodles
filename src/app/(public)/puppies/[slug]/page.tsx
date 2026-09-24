@@ -10,7 +10,7 @@ import { SectionShell } from "@/components/ui/section-shell";
 import { db } from "@/lib/db";
 import {
   formatDate,
-  formatPuppyPrice,
+  publicPuppyPrice,
   formatSex,
 } from "@/lib/format";
 import { SITE } from "@/lib/constants";
@@ -59,7 +59,11 @@ export default async function PuppyDetailPage({ params }: Props) {
   const primary =
     puppy.photos.find((p) => p.isPrimary) ?? puppy.photos[0] ?? null;
   const gallery = puppy.photos.filter((p) => p.id !== primary?.id);
-  const price = formatPuppyPrice(puppy.priceCents, puppy.priceLabel);
+  const price = publicPuppyPrice(
+    puppy.status,
+    puppy.priceCents,
+    puppy.priceLabel,
+  );
   const birthDate = formatDate(puppy.birthDate ?? puppy.litter?.birthDate);
 
   const specs = [

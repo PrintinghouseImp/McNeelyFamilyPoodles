@@ -122,7 +122,7 @@ export async function updateArticle(formData: FormData) {
       coverUrl,
       isPublished,
       publishedAt: isPublished
-        ? existing.publishedAt ?? new Date()
+        ? (existing.publishedAt ?? new Date())
         : existing.publishedAt,
     },
   });
@@ -283,6 +283,8 @@ export async function updateSocialSettings(formData: FormData) {
   const pairs = [
     { key: "instagram_url", value: str(formData, "instagram_url") },
     { key: "facebook_url", value: str(formData, "facebook_url") },
+    { key: "instagram_image_url", value: str(formData, "instagram_image_url") },
+    { key: "facebook_image_url", value: str(formData, "facebook_image_url") },
   ];
   for (const setting of pairs) {
     await db.siteSetting.upsert({

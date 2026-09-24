@@ -62,7 +62,7 @@ export default async function AdminDashboardLayout({
         </header>
         <div className="border-b border-gray-200 bg-white px-6 py-3 md:hidden">
           <nav className="flex flex-wrap gap-3 text-sm">
-            {ADMIN_NAV.slice(0, 6).map((item) => (
+            {ADMIN_NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

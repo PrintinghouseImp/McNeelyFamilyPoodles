@@ -120,7 +120,6 @@ export default async function NewMedicalRecordPage({ searchParams }: Props) {
             type="file"
             name="file"
             accept="application/pdf,image/*,.pdf"
-            capture="environment"
             className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-full file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-black hover:file:bg-gray-200"
           />
         </Field>

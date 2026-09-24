@@ -1,22 +1,15 @@
 "use server";
 
 import { signIn, signOut } from "@/lib/auth";
+import { safePortalCallback } from "@/lib/portal";
 
 export async function signInWithGoogle(formData: FormData) {
-  const callbackUrl = String(formData.get("callbackUrl") ?? "/portal");
-  const dest =
-    callbackUrl.startsWith("/portal") && !callbackUrl.startsWith("/portal/login")
-      ? callbackUrl
-      : "/portal";
+  const dest = safePortalCallback(String(formData.get("callbackUrl") ?? ""));
   await signIn("google", { redirectTo: dest });
 }
 
 export async function signInWithFacebook(formData: FormData) {
-  const callbackUrl = String(formData.get("callbackUrl") ?? "/portal");
-  const dest =
-    callbackUrl.startsWith("/portal") && !callbackUrl.startsWith("/portal/login")
-      ? callbackUrl
-      : "/portal";
+  const dest = safePortalCallback(String(formData.get("callbackUrl") ?? ""));
   await signIn("facebook", { redirectTo: dest });
 }
 

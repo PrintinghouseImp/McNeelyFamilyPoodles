@@ -64,13 +64,23 @@ export async function uploadPhoto(formData: FormData) {
     throw new Error("Choose an image file");
   }
 
-  const isPrimary = bool(formData, "isPrimary");
+  const requestedPrimary = bool(formData, "isPrimary");
   const alt = str(formData, "alt") || null;
 
   const saved = await saveUploadedImage(
     file,
     `${kind.toLowerCase()}/${entityId}`,
   );
+
+  const primaryCount = await db.photo.count({
+    where:
+      kind === "PARENT"
+        ? { parentDogId: entityId, isPrimary: true }
+        : kind === "PUPPY"
+          ? { puppyId: entityId, isPrimary: true }
+          : { litterId: entityId, isPrimary: true },
+  });
+  const isPrimary = requestedPrimary || primaryCount === 0;
 
   if (isPrimary) {
     await clearPrimary(kind, entityId);
@@ -146,6 +156,25 @@ export async function deletePhoto(formData: FormData) {
 
   await db.photo.delete({ where: { id: photoId } });
   await deleteLocalUpload(photo.url);
+
+  if (photo.isPrimary) {
+    const next = await db.photo.findFirst({
+      where: photo.parentDogId
+        ? { parentDogId: photo.parentDogId }
+        : photo.puppyId
+          ? { puppyId: photo.puppyId }
+          : photo.litterId
+            ? { litterId: photo.litterId }
+            : { id: "__none__" },
+      orderBy: { sortOrder: "asc" },
+    });
+    if (next) {
+      await db.photo.update({
+        where: { id: next.id },
+        data: { isPrimary: true },
+      });
+    }
+  }
 
   if (photo.parentDogId) await revalidateEntity("PARENT", photo.parentDogId);
   if (photo.puppyId) await revalidateEntity("PUPPY", photo.puppyId);

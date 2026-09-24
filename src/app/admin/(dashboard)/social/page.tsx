@@ -27,7 +27,16 @@ export default async function AdminSocialPage({ searchParams }: Props) {
 
   const [settings, posts] = await Promise.all([
     db.siteSetting.findMany({
-      where: { key: { in: ["instagram_url", "facebook_url"] } },
+      where: {
+        key: {
+          in: [
+            "instagram_url",
+            "facebook_url",
+            "instagram_image_url",
+            "facebook_image_url",
+          ],
+        },
+      },
     }),
     db.socialPost.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
@@ -72,6 +81,30 @@ export default async function AdminSocialPage({ searchParams }: Props) {
             defaultValue={map.facebook_url ?? ""}
             className={inputClass}
             placeholder="https://facebook.com/yourpage"
+          />
+        </Field>
+        <Field
+          label="Instagram card image URL"
+          hint="Optional square thumbnail for the public Instagram card. Leave blank to use the ranch photo."
+        >
+          <input
+            name="instagram_image_url"
+            type="url"
+            defaultValue={map.instagram_image_url ?? ""}
+            className={inputClass}
+            placeholder="https://images.mcneelyfamilypoodles.com/…"
+          />
+        </Field>
+        <Field
+          label="Facebook card image URL"
+          hint="Optional square thumbnail for the public Facebook card. Leave blank to use the ranch photo."
+        >
+          <input
+            name="facebook_image_url"
+            type="url"
+            defaultValue={map.facebook_image_url ?? ""}
+            className={inputClass}
+            placeholder="https://images.mcneelyfamilypoodles.com/…"
           />
         </Field>
         <SubmitButton pendingLabel="Saving…">Save profile links</SubmitButton>

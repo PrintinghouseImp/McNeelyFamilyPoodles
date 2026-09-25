@@ -16,7 +16,7 @@ export const metadata = {
 };
 
 type Props = {
-  searchParams: Promise<{ puppy?: string }>;
+  searchParams: Promise<{ puppy?: string; intent?: string }>;
 };
 
 export default async function ApplyPage({ searchParams }: Props) {
@@ -27,14 +27,15 @@ export default async function ApplyPage({ searchParams }: Props) {
 
   const params = await searchParams;
   const puppySlug = params.puppy?.trim();
+  const guardian = params.intent === "guardian";
 
   const [puppies, selectedPuppy] = await Promise.all([
     db.puppy.findMany({
-      where: {
-        isPublished: true,
-        status: { in: ["AVAILABLE", "GUARDIANSHIP", "RESERVED"] },
-      },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      where: { isPublished: true },
+      orderBy: [
+        { birthDate: { sort: "desc", nulls: "last" } },
+        { name: "asc" },
+      ],
       select: { id: true, name: true, status: true, slug: true },
     }),
     puppySlug
@@ -54,7 +55,7 @@ export default async function ApplyPage({ searchParams }: Props) {
   return (
     <>
       <PageHero
-        title="Puppy Application"
+        title={guardian ? "Guardian application" : "Puppy Application"}
         subtitle="Tell us about your home and the companion you are hoping for"
       />
       <SectionShell>
@@ -73,7 +74,10 @@ export default async function ApplyPage({ searchParams }: Props) {
             ) : null}
             <Link
               href={`/portal/login?callbackUrl=${encodeURIComponent(
-                puppySlug ? `/apply?puppy=${puppySlug}` : "/apply",
+                `/apply?${new URLSearchParams({
+                  ...(puppySlug ? { puppy: puppySlug } : {}),
+                  ...(guardian ? { intent: "guardian" } : {}),
+                }).toString()}`.replace(/\?$/, ""),
               )}`}
               className="mt-8 inline-block rounded-full bg-black px-8 py-3.5 font-medium text-white transition hover:bg-gray-900"
             >
@@ -101,6 +105,7 @@ export default async function ApplyPage({ searchParams }: Props) {
               defaultPuppyId={selectedPuppy?.id}
               defaultName={session?.user?.name ?? undefined}
               defaultEmail={session?.user?.email ?? undefined}
+              intent={guardian ? "GUARDIAN" : "PUPPY"}
             />
           </div>
         )}

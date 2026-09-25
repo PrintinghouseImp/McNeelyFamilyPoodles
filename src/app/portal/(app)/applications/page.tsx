@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApplyChooser } from "@/components/apply/apply-chooser";
 import { requirePortalUser } from "@/lib/portal";
 import { db } from "@/lib/db";
 import {
@@ -21,6 +22,7 @@ export default async function PortalApplicationsPage({ searchParams }: Props) {
     orderBy: { createdAt: "desc" },
     include: {
       puppy: { select: { name: true, slug: true } },
+      secondPuppy: { select: { name: true, slug: true } },
     },
   });
 
@@ -35,12 +37,9 @@ export default async function PortalApplicationsPage({ searchParams }: Props) {
             Track status as the breeder reviews your request.
           </p>
         </div>
-        <Link
-          href="/apply"
-          className="inline-flex rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-900"
-        >
+        <ApplyChooser className="inline-flex rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-900">
           New application
-        </Link>
+        </ApplyChooser>
       </div>
 
       {params.submitted === "1" ? (
@@ -55,12 +54,9 @@ export default async function PortalApplicationsPage({ searchParams }: Props) {
       {applications.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
           <p className="text-gray-600">You have no applications yet.</p>
-          <Link
-            href="/apply"
-            className="mt-4 inline-flex rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-900"
-          >
+          <ApplyChooser className="mt-4 inline-flex rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-900">
             Start an application
-          </Link>
+          </ApplyChooser>
         </div>
       ) : (
         <ul className="mt-8 divide-y divide-gray-100 rounded-2xl border border-gray-200 bg-white">
@@ -68,8 +64,11 @@ export default async function PortalApplicationsPage({ searchParams }: Props) {
             <li key={app.id} className="px-5 py-4 text-sm">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <p className="font-medium text-black">
+                  {app.intent === "GUARDIAN" ? "Guardian · " : ""}
                   {app.puppy?.name
-                    ? `Application for ${app.puppy.name}`
+                    ? `Application for ${[app.puppy.name, app.secondPuppy?.name]
+                        .filter(Boolean)
+                        .join(" and ")}`
                     : "General application"}
                 </p>
                 <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">

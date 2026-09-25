@@ -1,7 +1,7 @@
 import Link from "next/link";
+import { HeroVideo } from "@/components/home/hero-video";
 import { PuppyCard } from "@/components/inventory/puppy-card";
 import { SectionShell } from "@/components/ui/section-shell";
-import { SITE } from "@/lib/constants";
 import { db } from "@/lib/db";
 
 export default async function HomePage() {
@@ -27,57 +27,26 @@ export default async function HomePage() {
 
   return (
     <>
-      <header className="flex flex-1 items-center justify-center bg-white py-24 md:py-32">
-        <div className="mx-auto max-w-3xl px-6 text-center">
-          <h1 className="mb-5 text-4xl font-semibold tracking-tight text-black md:text-6xl">
-            {SITE.name}
-          </h1>
-          <p className="mb-10 text-lg text-gray-500 md:text-2xl">
-            {SITE.tagline}
-          </p>
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/puppies"
-              className="inline-block rounded-full bg-black px-8 py-3.5 text-base font-medium text-white transition hover:bg-gray-900"
-            >
-              View available puppies
-            </Link>
-            <Link
-              href="/parents"
-              className="inline-block rounded-full border border-gray-300 bg-white px-8 py-3.5 text-base font-medium text-gray-700 transition hover:border-gray-400 hover:text-black"
-            >
-              Meet sires & dams
-            </Link>
+      <section className="flex min-h-[calc(100svh-4.5rem)] flex-col bg-white px-6 py-8">
+        <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 md:grid-cols-2">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight text-black md:text-5xl lg:text-6xl">
+              Raising miniature poodles in Phoenix, AZ
+            </h1>
+            <p className="mt-5 text-lg text-gray-500 md:text-xl">
+              Find your next family member with full confidence that
+              they&apos;ve been bred with the highest standard of care
+            </p>
           </div>
+          <HeroVideo />
         </div>
-      </header>
-
-      <section className="border-y border-gray-200 bg-gray-50 py-12">
-        <div className="container mx-auto grid grid-cols-1 gap-10 px-6 text-center md:grid-cols-3">
-          <div>
-            <h3 className="text-base font-semibold text-black">
-              Ralph McBride and Janine Neely
-            </h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Ethical breeders · home-raised miniature poodles
-            </p>
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-black">
-              Health tested · AKC
-            </h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Genetic panels, vet care, lifetime support
-            </p>
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-black">
-              {SITE.location}
-            </h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Laveen ranch · shipping nationwide
-            </p>
-          </div>
+        <div className="mx-auto mt-8 pb-4">
+          <Link
+            href="/puppies"
+            className="inline-flex rounded-full bg-black px-12 py-5 text-xl font-semibold text-white transition hover:bg-gray-900 md:px-14 md:py-6 md:text-2xl"
+          >
+            View available puppies
+          </Link>
         </div>
       </section>
 

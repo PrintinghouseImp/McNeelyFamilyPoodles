@@ -35,6 +35,18 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+/* Public pages only. Admin stays on the root sans. */
+.public-site {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+.public-site :where(h1, h2, h3, h4, h5, h6),
+.public-site .font-wordmark {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "opsz" 144;
+}
+
 /* Brand utilities */
 .bg-ink {
   background-color: var(--ink);

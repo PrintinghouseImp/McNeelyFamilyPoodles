@@ -163,7 +163,8 @@ model Puppy {
   litter       Litter?     @relation(fields: [litterId], references: [id], onDelete: SetNull)
   photos       Photo[]     @relation("PuppyPhotos")
   medicalRecords MedicalRecord[] @relation("PuppyMedical")
-  applications Application[]
+  applications Application[] @relation("ApplicationPrimary")
+  secondChoiceApplications Application[] @relation("ApplicationAlternate")
   depositRequests DepositRequest[]
   ownerships   DogOwnership[]
   documents    DogDocument[]
@@ -289,28 +290,54 @@ enum ApplicationStatus {
   WAITLISTED
 }
 
+enum ApplicationIntent {
+  PUPPY
+  GUARDIAN
+}
+
 model Application {
-  id        String            @id @default(cuid())
-  userId    String?
-  puppyId   String?
-  name      String
-  email     String
-  phone     String?
-  message   String?           @db.Text
-  homeType  String?
-  hasKids   Boolean?
-  hasPets   Boolean?
+  id            String            @id @default(cuid())
+  userId        String?
+  puppyId       String?
+  secondPuppyId String?
+  /// PUPPY = find a puppy. GUARDIAN = same form, marked as a guardian request.
+  intent        ApplicationIntent @default(PUPPY)
+  name          String
+  email         String
+  phone         String?
+  message       String?           @db.Text
+  homeType      String?
+  hasKids       Boolean?
+  hasPets       Boolean?
   /// Extra questionnaire answers as JSON string if needed
-  answers   String?           @db.Text
-  status    ApplicationStatus @default(NEW)
-  user      User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
-  puppy     Puppy?            @relation(fields: [puppyId], references: [id], onDelete: SetNull)
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  answers       String?           @db.Text
+  status        ApplicationStatus @default(NEW)
+  user          User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  puppy         Puppy?            @relation("ApplicationPrimary", fields: [puppyId], references: [id], onDelete: SetNull)
+  secondPuppy   Puppy?            @relation("ApplicationAlternate", fields: [secondPuppyId], references: [id], onDelete: SetNull)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   @@index([status, createdAt])
   @@index([userId])
   @@index([puppyId])
+  @@index([secondPuppyId])
+}
+
+/// Public inquiry from a verified 501(c)(3). Not a puppy application.
+model RescueApplication {
+  id               String   @id @default(cuid())
+  organizationName String
+  website          String
+  ein              String
+  confirms501c3    Boolean
+  focus            String   @db.Text
+  contactName      String
+  email            String
+  phone            String?
+  createdAt        DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 enum DepositMethod {

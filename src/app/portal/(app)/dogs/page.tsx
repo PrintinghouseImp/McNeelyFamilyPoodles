@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApplyChooser } from "@/components/apply/apply-chooser";
 import { requirePortalUser } from "@/lib/portal";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
@@ -64,9 +65,9 @@ export default async function PortalDogsPage() {
               .
             </p>
           ) : null}
-          <Link href="/apply" className={`${btnPrimary} mt-4`}>
+          <ApplyChooser className={`${btnPrimary} mt-4`}>
             Apply for a puppy
-          </Link>
+          </ApplyChooser>
         </div>
       ) : (
         <ul className="mt-8 grid gap-4 sm:grid-cols-2">

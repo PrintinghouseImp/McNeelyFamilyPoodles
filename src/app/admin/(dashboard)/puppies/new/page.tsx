@@ -8,18 +8,17 @@ import {
   textareaClass,
   Field } from "@/components/admin/field";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { LitterParentFields } from "@/components/admin/litter-parent-fields";
 import { requireAdmin } from "@/lib/admin";
-import { db } from "@/lib/db";
 import { formatPuppyStatus, PUPPY_STATUSES } from "@/lib/format";
+import { litterParentChoices } from "@/lib/litter-parents";
 
 export const metadata = { title: "Admin · New puppy" };
 
 export default async function NewPuppyPage() {
   await requireAdmin();
 
-  const litters = await db.litter.findMany({
-    orderBy: { birthDate: "desc" },
-    select: { id: true, name: true, slug: true } });
+  const { dams, sires } = await litterParentChoices();
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -65,16 +64,7 @@ export default async function NewPuppyPage() {
         <Field label="Birth date">
           <input name="birthDate" type="date" className={inputClass} />
         </Field>
-        <Field label="Litter">
-          <select name="litterId" className={selectClass} defaultValue="">
-            <option value="">No litter</option>
-            {litters.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.name ?? l.slug}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <LitterParentFields dams={dams} sires={sires} />
         <Field label="Description">
           <textarea name="description" className={textareaClass} />
         </Field>
@@ -87,7 +77,7 @@ export default async function NewPuppyPage() {
         </label>
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input type="checkbox" name="isAdopted" className={checkClass} />
-          Adopted — show on Alumni (removes from main Puppies list)
+          On Alumni (removes from the main Puppies list and sets status to Sold)
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
           <SubmitButton pendingLabel="Creating…">Create puppy</SubmitButton>

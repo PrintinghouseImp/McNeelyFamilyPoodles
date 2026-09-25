@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApplyChooser } from "@/components/apply/apply-chooser";
 import { PhotoFrame } from "@/components/inventory/photo-frame";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
@@ -96,12 +97,9 @@ export default async function ForeverHomesPage() {
         <p className="mx-auto mb-12 max-w-2xl text-center text-gray-500">
           Every placement is a long-term relationship. Browse happy endings below,
           then{" "}
-          <Link
-            href="/apply"
-            className="text-gray-700 underline-offset-2 hover:text-black hover:underline"
-          >
+          <ApplyChooser className="text-gray-700 underline-offset-2 hover:text-black hover:underline">
             start an application
-          </Link>{" "}
+          </ApplyChooser>{" "}
           when you are ready.
         </p>
 
@@ -213,12 +211,9 @@ export default async function ForeverHomesPage() {
         </section>
 
         <div className="mt-14 text-center">
-          <Link
-            href="/apply"
-            className="inline-flex rounded-full bg-black px-8 py-3.5 text-sm font-medium text-white transition hover:bg-gray-900"
-          >
+          <ApplyChooser className="inline-flex rounded-full bg-black px-8 py-3.5 text-sm font-medium text-white transition hover:bg-gray-900">
             Apply for a puppy
-          </Link>
+          </ApplyChooser>
           <p className="mt-3 text-sm text-gray-500">
             Or{" "}
             <Link

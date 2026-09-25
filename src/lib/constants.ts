@@ -54,12 +54,13 @@ export const BRAND = {
  * Primary header nav — prospective clients only (Good Dog–style simplicity).
  */
 export const HEADER_NAV = [
-  { href: "/", label: "Home" },
+  { href: "/about", label: "Our Program" },
   { href: "/puppies", label: "Puppies" },
   { href: "/parents", label: "Parents" },
-  { href: "/about", label: "About" },
-  { href: "/apply", label: "Apply" },
 ] as const;
+
+/** Footer explore links. Home is the header logo, not a text link. */
+export const FOOTER_EXPLORE_LINKS = HEADER_NAV;
 
 /**
  * Extra public links — footer only (not in header).
@@ -67,7 +68,7 @@ export const HEADER_NAV = [
 export const FOOTER_MORE_LINKS = [
   { href: "/alumni", label: "Alumni" },
   { href: "/forever-homes", label: "Forever Homes" },
-  { href: "/articles", label: "Articles" },
+  { href: "/articles", label: "Learn More" },
   { href: "/shop", label: "Shop" },
   { href: "/social", label: "Social" },
 ] as const;
@@ -91,6 +92,7 @@ export const ADMIN_NAV = [
   { href: "/admin/medical", label: "Medical records" },
   { href: "/admin/ownerships", label: "Ownerships" },
   { href: "/admin/applications", label: "Applications" },
+  { href: "/admin/rescue", label: "Rescue" },
   { href: "/admin/deposits", label: "Deposits" },
   { href: "/admin/payments", label: "Stripe payments" },
   { href: "/admin/articles", label: "Articles" },

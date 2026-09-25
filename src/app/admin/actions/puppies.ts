@@ -17,6 +17,55 @@ import { slugify, uniqueSlug } from "@/lib/slug";
 
 const STATUSES = new Set<string>(Object.values(PuppyStatus));
 
+async function litterIdForParents(
+  damId: string | null,
+  sireId: string | null,
+  birthDate: Date | null,
+): Promise<string | null> {
+  if (!damId && !sireId) return null;
+  if (!damId || !sireId) {
+    throw new Error("Select both a dam and a sire, or leave both blank.");
+  }
+
+  const [dam, sire] = await Promise.all([
+    db.parentDog.findUnique({ where: { id: damId } }),
+    db.parentDog.findUnique({ where: { id: sireId } }),
+  ]);
+  if (!dam || dam.sex !== Sex.FEMALE) throw new Error("Choose a dam.");
+  if (!sire || sire.sex !== Sex.MALE) throw new Error("Choose a sire.");
+
+  const matches = await db.litter.findMany({
+    where: { damId, sireId },
+    orderBy: { birthDate: "desc" },
+  });
+  if (birthDate) {
+    const day = birthDate.toISOString().slice(0, 10);
+    const sameDay = matches.find(
+      (litter) => litter.birthDate.toISOString().slice(0, 10) === day,
+    );
+    if (sameDay) return sameDay.id;
+  }
+  if (matches[0]) return matches[0].id;
+
+  const slug = await uniqueSlug(
+    slugify(`${dam.name} ${sire.name}`) || "litter",
+    async (candidate) =>
+      Boolean(await db.litter.findUnique({ where: { slug: candidate } })),
+  );
+  const created = await db.litter.create({
+    data: {
+      slug,
+      name: `${dam.name} × ${sire.name}`,
+      birthDate: birthDate ?? new Date(),
+      damId,
+      sireId,
+      isPublished: true,
+    },
+  });
+  revalidatePath("/admin/litters");
+  return created.id;
+}
+
 function revalidatePuppies(slug?: string) {
   revalidatePath("/admin/puppies");
   revalidatePath("/puppies");
@@ -44,10 +93,14 @@ export async function createPuppy(formData: FormData) {
     return Boolean(found);
   });
 
-  const litterId = optionalStr(formData, "litterId");
+  const litterId = await litterIdForParents(
+    optionalStr(formData, "damId"),
+    optionalStr(formData, "sireId"),
+    dateOnly(formData, "birthDate"),
+  );
 
   const isAdopted = bool(formData, "isAdopted");
-  // Adopted puppies belong on Alumni; keep status aligned with SOLD when adopting
+  // Alumni flag sets status to Sold and removes the puppy from the main list.
   const resolvedStatus: PuppyStatus = isAdopted
     ? ("SOLD" as PuppyStatus)
     : status;
@@ -99,9 +152,13 @@ export async function updatePuppy(formData: FormData) {
     });
   }
 
-  const litterId = optionalStr(formData, "litterId");
+  const litterId = await litterIdForParents(
+    optionalStr(formData, "damId"),
+    optionalStr(formData, "sireId"),
+    dateOnly(formData, "birthDate"),
+  );
   const isAdopted = bool(formData, "isAdopted");
-  // Checking Adopted moves the puppy to Alumni and sets status Sold
+  // Alumni flag sets status to Sold and removes the puppy from the main list.
   const resolvedStatus: PuppyStatus = isAdopted
     ? ("SOLD" as PuppyStatus)
     : status;

@@ -18,8 +18,10 @@ export const puppyApplicationSchema = z.object({
   homeType: z.string().max(80).optional().or(z.literal("")),
   hasKids: z.boolean().optional(),
   hasPets: z.boolean().optional(),
-  /** Puppy id (cuid) or empty for general waitlist-style application */
+  /** Puppy id (cuid) or empty for a general waitlist application */
   puppyId: z.string().min(1).optional().or(z.literal("")),
+  secondPuppyId: z.string().min(1).optional().or(z.literal("")),
+  intent: z.enum(["PUPPY", "GUARDIAN"]).optional(),
 });
 
 export const applicationStatusSchema = z.enum(APPLICATION_STATUSES);

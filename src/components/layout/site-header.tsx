@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { HEADER_NAV, SITE } from "@/lib/constants";
+import { ApplyChooser } from "@/components/apply/apply-chooser";
+import { HEADER_NAV } from "@/lib/constants";
+
+const LOGO = "https://images.mcneelyfamilypoodles.com/home/logo.png";
 
 function linkActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -16,15 +19,16 @@ export function SiteHeader() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
-      <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="text-xl font-semibold tracking-tight text-black md:text-2xl"
-        >
-          {SITE.name}
+      <div className="container mx-auto flex items-center gap-4 px-6 py-3">
+        <Link href="/" className="flex shrink-0 items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={LOGO} alt="" className="h-10 w-auto" />
+          <span className="font-wordmark text-base leading-tight text-black sm:text-lg">
+            McNeely Family Poodles
+          </span>
         </Link>
 
-        <div className="hidden items-center space-x-8 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {HEADER_NAV.map((link) => {
             const active = linkActive(pathname, link.href);
             return (
@@ -43,20 +47,31 @@ export function SiteHeader() {
           })}
         </div>
 
-        <button
-          type="button"
-          className="text-2xl text-black md:hidden"
-          aria-label="Toggle menu"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          ☰
-        </button>
+        <div className="ml-auto flex items-center gap-3">
+          <Link
+            href="/portal/login"
+            className="text-sm text-gray-500 transition hover:text-black"
+          >
+            Log in
+          </Link>
+          <ApplyChooser className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-900">
+            Apply
+          </ApplyChooser>
+          <button
+            type="button"
+            className="text-2xl leading-none text-black md:hidden"
+            aria-label="Toggle menu"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            ☰
+          </button>
+        </div>
       </div>
 
-      {open && (
+      {open ? (
         <div className="border-t border-gray-200 bg-white md:hidden">
-          <div className="container mx-auto space-y-3 px-6 py-4 text-center">
+          <div className="container mx-auto space-y-3 px-6 py-4">
             {HEADER_NAV.map((link) => {
               const active = linkActive(pathname, link.href);
               return (
@@ -76,7 +91,7 @@ export function SiteHeader() {
             })}
           </div>
         </div>
-      )}
+      ) : null}
     </nav>
   );
 }

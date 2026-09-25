@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApplyChooser } from "@/components/apply/apply-chooser";
 import { PuppyCard } from "@/components/inventory/puppy-card";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
@@ -70,12 +71,9 @@ export default async function PuppiesPage() {
               Alumni
             </Link>
             , or{" "}
-            <Link
-              href="/apply"
-              className="text-gray-700 underline-offset-2 hover:text-black hover:underline"
-            >
+            <ApplyChooser className="text-gray-700 underline-offset-2 hover:text-black hover:underline">
               submit an application
-            </Link>{" "}
+            </ApplyChooser>{" "}
             to join the waitlist.
           </p>
         ) : (

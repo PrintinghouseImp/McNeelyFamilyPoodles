@@ -5,6 +5,7 @@ import {
   revokeDogOwnership,
 } from "@/app/admin/actions/ownership";
 import { deletePuppy, updatePuppy } from "@/app/admin/actions/puppies";
+import { LitterParentFields } from "@/components/admin/litter-parent-fields";
 import { PhotoManager } from "@/components/admin/photo-manager";
 import {
   btnDanger,
@@ -27,6 +28,7 @@ import {
   formatPuppyStatus,
   PUPPY_STATUSES,
 } from "@/lib/format";
+import { litterParentChoices } from "@/lib/litter-parents";
 import { isStripeConfigured } from "@/lib/stripe";
 
 type Props = {
@@ -49,7 +51,7 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
   const { id } = await params;
   const ownerFlash = await searchParams;
 
-  const [puppy, litters, suggestedCustomers, allCustomers] = await Promise.all([
+  const [puppy, suggestedCustomers, allCustomers] = await Promise.all([
     db.puppy.findUnique({
       where: { id },
       include: {
@@ -64,11 +66,8 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
             user: { select: { id: true, email: true, name: true } },
           },
         },
+        litter: { select: { damId: true, sireId: true } },
       },
-    }),
-    db.litter.findMany({
-      orderBy: { birthDate: "desc" },
-      select: { id: true, name: true, slug: true },
     }),
     // Customers who applied or requested a deposit for this puppy (handy defaults)
     db.user.findMany({
@@ -91,6 +90,10 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
     }),
   ]);
   if (!puppy) notFound();
+  const { dams, sires } = await litterParentChoices({
+    damId: puppy.litter?.damId,
+    sireId: puppy.litter?.sireId,
+  });
   const stripeOk = isStripeConfigured();
   const emailOk = isEmailConfigured();
 
@@ -204,20 +207,12 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
             className={inputClass}
           />
         </Field>
-        <Field label="Litter">
-          <select
-            name="litterId"
-            className={selectClass}
-            defaultValue={puppy.litterId ?? ""}
-          >
-            <option value="">No litter</option>
-            {litters.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.name ?? l.slug}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <LitterParentFields
+          dams={dams}
+          sires={sires}
+          damId={puppy.litter?.damId}
+          sireId={puppy.litter?.sireId}
+        />
         <Field label="Description">
           <textarea
             name="description"
@@ -249,7 +244,7 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
             defaultChecked={puppy.isAdopted}
             className={checkClass}
           />
-          Adopted — show on Alumni (removes from main Puppies list)
+          On Alumni (removes from the main Puppies list and sets status to Sold)
         </label>
         <div className="flex flex-wrap gap-3 pt-2">
           <SubmitButton>Save changes</SubmitButton>

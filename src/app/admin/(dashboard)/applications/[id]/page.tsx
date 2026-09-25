@@ -33,6 +33,7 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
     where: { id },
     include: {
       puppy: { select: { id: true, name: true, slug: true, status: true } },
+      secondPuppy: { select: { id: true, name: true, slug: true, status: true } },
       user: { select: { id: true, email: true, name: true } },
     },
   });
@@ -50,6 +51,7 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
         {app.name}
       </h1>
       <p className="mt-1 text-sm text-gray-500">
+        {app.intent === "GUARDIAN" ? "Guardian · " : ""}
         {formatApplicationStatus(app.status)} · Submitted{" "}
         {formatDate(app.createdAt) ?? "—"}
       </p>
@@ -86,6 +88,17 @@ export default async function AdminApplicationDetailPage({ params }: Props) {
             ) : (
               "General (no specific puppy)"
             )}
+            {app.secondPuppy ? (
+              <>
+                {", "}
+                <Link
+                  href={`/admin/puppies/${app.secondPuppy.id}`}
+                  className="hover:underline"
+                >
+                  {app.secondPuppy.name}
+                </Link>
+              </>
+            ) : null}
           </dd>
         </div>
         <div>

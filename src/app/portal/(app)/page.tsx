@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApplyChooser } from "@/components/apply/apply-chooser";
 import { OpenPaymentsPanel } from "@/components/payments/open-payments-panel";
 import { requirePortalUser } from "@/lib/portal";
 import { getPortalOpenPayments } from "@/lib/portal-payments";
@@ -110,12 +111,9 @@ export default async function PortalHomePage() {
       </ul>
 
       <div className="mt-10 flex flex-wrap gap-3">
-        <Link
-          href="/apply"
-          className="inline-flex rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-900"
-        >
+        <ApplyChooser className="inline-flex rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-900">
           Apply for a puppy
-        </Link>
+        </ApplyChooser>
         <Link
           href="/portal/deposits"
           className="inline-flex rounded-full border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:text-black"

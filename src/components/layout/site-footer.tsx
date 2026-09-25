@@ -2,8 +2,8 @@ import Link from "next/link";
 import { siteSignOut } from "@/app/actions/auth";
 import {
   FOOTER_ACCOUNT_LINKS,
+  FOOTER_EXPLORE_LINKS,
   FOOTER_MORE_LINKS,
-  HEADER_NAV,
   SITE,
 } from "@/lib/constants";
 import { auth } from "@/lib/auth";
@@ -29,7 +29,7 @@ export async function SiteFooter() {
             Explore
           </p>
           <ul className="mt-3 space-y-2">
-            {HEADER_NAV.map((link) => (
+            {FOOTER_EXPLORE_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}

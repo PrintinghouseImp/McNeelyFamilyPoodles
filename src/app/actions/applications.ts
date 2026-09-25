@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { ApplicationStatus } from "@/generated/prisma/client";
+import { ApplicationIntent, ApplicationStatus } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
@@ -48,6 +48,8 @@ export async function submitApplication(
     hasKids: bool(formData, "hasKids"),
     hasPets: bool(formData, "hasPets"),
     puppyId: optionalStr(formData, "puppyId") ?? "",
+    secondPuppyId: optionalStr(formData, "secondPuppyId") ?? "",
+    intent: str(formData, "intent") === "GUARDIAN" ? "GUARDIAN" : "PUPPY",
   };
 
   const parsed = puppyApplicationSchema.safeParse(raw);
@@ -59,14 +61,23 @@ export async function submitApplication(
   }
 
   const data = parsed.data;
-  const puppyId: string | null = data.puppyId || null;
+  let puppyId: string | null = data.puppyId || null;
+  let secondPuppyId: string | null = data.secondPuppyId || null;
+  if (!puppyId && secondPuppyId) {
+    puppyId = secondPuppyId;
+    secondPuppyId = null;
+  }
+  if (puppyId && secondPuppyId && puppyId === secondPuppyId) {
+    return { error: "Choose two different puppies, or leave the second blank." };
+  }
 
-  if (puppyId) {
-    const puppy = await db.puppy.findFirst({
-      where: { id: puppyId, isPublished: true },
+  const chosen = [puppyId, secondPuppyId].filter(Boolean) as string[];
+  if (chosen.length) {
+    const found = await db.puppy.findMany({
+      where: { id: { in: chosen }, isPublished: true },
       select: { id: true },
     });
-    if (!puppy) {
+    if (found.length !== chosen.length) {
       return { error: "That puppy is not available for application." };
     }
   }
@@ -75,6 +86,11 @@ export async function submitApplication(
     data: {
       userId: session.user.id,
       puppyId,
+      secondPuppyId,
+      intent:
+        data.intent === "GUARDIAN"
+          ? ApplicationIntent.GUARDIAN
+          : ApplicationIntent.PUPPY,
       name: data.name,
       email: data.email,
       phone: data.phone || null,

@@ -30,6 +30,7 @@ export default async function AdminApplicationsPage({ searchParams }: Props) {
     orderBy: { createdAt: "desc" },
     include: {
       puppy: { select: { name: true, slug: true } },
+      secondPuppy: { select: { name: true, slug: true } },
       user: { select: { email: true, name: true } },
     },
   });
@@ -89,7 +90,14 @@ export default async function AdminApplicationsPage({ searchParams }: Props) {
                     <p className="text-xs text-gray-500">{app.email}</p>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {app.puppy?.name ?? "General"}
+                    {app.intent === "GUARDIAN" ? (
+                      <span className="mr-2 text-xs uppercase tracking-wide text-gray-400">
+                        Guardian
+                      </span>
+                    ) : null}
+                    {[app.puppy?.name, app.secondPuppy?.name]
+                      .filter(Boolean)
+                      .join(", ") || "General"}
                   </td>
                   <td className="px-4 py-3">
                     <StatusPill status={app.status} />

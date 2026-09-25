@@ -10,7 +10,10 @@ export default async function AdminPuppiesPage() {
   await requireAdmin();
 
   const puppies = await db.puppy.findMany({
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    orderBy: [
+      { birthDate: { sort: "desc", nulls: "last" } },
+      { name: "asc" },
+    ],
     include: {
       litter: { select: { name: true, slug: true } },
       _count: { select: { photos: true } },
@@ -63,9 +66,7 @@ export default async function AdminPuppiesPage() {
                   </td>
                   <td className="px-4 py-3 text-gray-600">{formatSex(p.sex)}</td>
                   <td className="px-4 py-3 text-gray-600">
-                    {p.isAdopted
-                      ? "Adopted"
-                      : formatPuppyStatus(p.status)}
+                    {formatPuppyStatus(p.status)}
                   </td>
                   <td className="px-4 py-3 text-gray-600">
                     {formatPuppyPrice(p.priceCents, p.priceLabel) ?? "—"}

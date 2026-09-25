@@ -1,129 +1,130 @@
-import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
-import { SITE } from "@/lib/constants";
+
+const FULL_LOGO =
+  "https://images.mcneelyfamilypoodles.com/About/McNeely%20Logo%20Full.png";
+const JANINE =
+  "https://images.mcneelyfamilypoodles.com/About/Janine%20Hero.png";
+const RALPH =
+  "https://images.mcneelyfamilypoodles.com/About/Ralph%20Hero.png";
+const OLEANDER =
+  "https://images.mcneelyfamilypoodles.com/About/Oleander.jpg";
 
 export const metadata = {
-  title: "About Us",
-  description: `Meet Ralph McBride & Janine Neely and the story behind ${SITE.name}.`,
+  title: "Our Program",
+  description:
+    "Ralph McBride and Janine Neely breed miniature poodles in Phoenix.",
 };
 
-export default function AboutPage() {
+async function imageOk(url: string) {
+  try {
+    const response = await fetch(url, {
+      method: "HEAD",
+      next: { revalidate: 3600 },
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+export default async function AboutPage() {
+  const showOleander = await imageOk(OLEANDER);
+
   return (
     <>
-      <PageHero
-        title="Ralph McBride & Janine Neely"
-        subtitle="Ethical breeders of miniature poodle companions · Phoenix, Arizona"
-      />
       <SectionShell>
-        <div className="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-2 lg:gap-20">
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-sm">
-            {/* eslint-disable-next-line @next/next/no-img-element -- local legacy asset */}
-            <img
-              src="/legacy/humans/norman_rockwell_poodle_family.webp"
-              alt="Ralph & Janine McNeely with their poodles"
-              className="aspect-[4/5] w-full object-cover"
-            />
-          </div>
-
-          <div className="space-y-6 text-lg leading-relaxed text-gray-700">
-            <h2 className="text-3xl font-semibold tracking-tight text-black md:text-4xl">
-              Our Story
-            </h2>
+        <div className="mx-auto max-w-3xl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={FULL_LOGO}
+            alt="McNeely Family Poodles"
+            className="mb-10 h-20 w-auto"
+          />
+          <h1 className="text-4xl font-semibold tracking-tight text-black md:text-5xl">
+            Our Program
+          </h1>
+          <div className="mt-8 space-y-6 text-lg leading-relaxed text-gray-700">
             <p>
-              Welcome to the McNeely ranch, a boutique, family-run poodle
-              breeding home nestled in the heart of Laveen, AZ. We began this
-              adventure in 2022 when we realized we were absolutely crazy about
-              poodles, and found the perfect piece of land to give them the very
-              best life possible. Here at the ranch, breeding poodles is not
-              just a hobby — it&apos;s a lifestyle.
+              Ralph McBride and Janine Neely breed miniature poodles in
+              Phoenix. We are a household of working scientists who live with
+              the breed and take its long-term health as the point of the
+              program.
             </p>
             <p>
-              Our dogs romp across an acre of green pasture, swim in the pond
-              our yard transforms into when we flood irrigate, and sleep on the
-              furniture when it&apos;s cold. Every puppy is born in our home,
-              raised underfoot, and socialized with kids, goats, and even the
-              occasional delivery driver or neighbor who gets recruited for
-              puppy parties. Yes, we can schedule you in for one too!
+              Poodles are not a product. They are a lineage. Our job is to
+              choose carefully, raise them in the house, and send them out
+              ready for adult life—as companions first, and as working or
+              service prospects when that is the match.
             </p>
             <p>
-              Our poodle puppies are all vet-checked, microchipped, vaccinated,
-              insured, trained to use a potty pad and doggy door before they go
-              home, and every puppy leaves with a lifetime promise: no matter
-              how many years pass, if life ever throws you a curveball and you
-              can&apos;t keep your poodle, our home is always open. All of our
-              breeding dogs are genetically tested for common poodle disorders
-              and receive annual vet checkups, routine vaccinations, and dental
-              cleanings.
+              That means genetic testing of breeding dogs, veterinary care and
+              vaccinations for puppies, and a steady evaluation of how each
+              puppy is developing, body and temperament, before it leaves.
             </p>
             <p>
-              At the end of the day, we&apos;re just a couple of poodle-loving
-              folks working hard to raise happy, healthy, ridiculously spoiled
-              companions and place them in homes that love the breed as much as
-              we do. If you&apos;re looking for a puppy who&apos;s been loved
-              like family from the moment they took their first breath — and who
-              will be loved like family for the rest of their life — you&apos;ve
-              come to the right place.
-            </p>
-            <p className="text-gray-500">
-              Warmly,
-              <br />
-              <span className="font-medium text-black">{SITE.name}</span>
+              The program started in 2022 in Laveen. Placement includes a
+              lifetime take-back. Rescue organizations in the valley that need
+              help with other breeds can ask.
             </p>
           </div>
         </div>
       </SectionShell>
 
+      <section className="border-t border-gray-200 bg-white py-16">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-semibold tracking-tight text-black md:text-4xl">
+            Staff
+          </h2>
+          <div className="mx-auto mt-10 grid max-w-4xl gap-12 md:grid-cols-2">
+            <figure>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={JANINE}
+                alt="Janine Neely"
+                className="aspect-[4/5] w-full rounded-2xl border border-gray-200 object-cover"
+              />
+              <figcaption className="mt-4">
+                <h3 className="text-xl font-semibold text-black">Janine Neely</h3>
+                <p className="mt-1 text-sm text-gray-500">Gene Jockey</p>
+              </figcaption>
+            </figure>
+            <figure>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={RALPH}
+                alt="Ralph McBride"
+                className="aspect-[4/5] w-full rounded-2xl border border-gray-200 object-cover"
+              />
+              <figcaption className="mt-4">
+                <h3 className="text-xl font-semibold text-black">Ralph McBride</h3>
+                <p className="mt-1 text-sm text-gray-500">Poodle Ranger</p>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
       <section className="border-t border-gray-200 bg-gray-50 py-16">
         <div className="container mx-auto px-6">
-          <h2 className="mb-12 text-center text-3xl font-semibold tracking-tight text-black md:text-4xl">
-            Poodle Wranglers
+          <h2 className="text-3xl font-semibold tracking-tight text-black md:text-4xl">
+            Interns
           </h2>
-          <div className="mx-auto grid max-w-4xl gap-12 md:grid-cols-2">
-            <div className="text-center">
-              <div className="relative mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/legacy/humans/oleander_puppy_whisperer.jpg"
-                  alt="Oleander Lawrence — Puppy Whisperer"
-                  className="aspect-[4/5] w-full object-cover"
-                />
-              </div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                Puppy Whisperer
-              </p>
-              <h3 className="mt-1 text-xl font-semibold text-black">
+          <figure className="mt-10 max-w-sm">
+            {showOleander ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={OLEANDER}
+                alt="Oleander Lawrence"
+                className="aspect-[4/5] w-full rounded-2xl border border-gray-200 object-cover"
+              />
+            ) : null}
+            <figcaption className={showOleander ? "mt-4" : undefined}>
+              <h3 className="text-xl font-semibold text-black">
                 Oleander Lawrence
               </h3>
-              <p className="mt-2 text-sm text-gray-500">
-                Puppy Trainer · Last Term: Fall 2025
-              </p>
-              <p className="mt-3 text-sm text-gray-600">
-                Specialties: grooming, puppy party coordination
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="relative mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/legacy/humans/janine_ralph_funny.webp"
-                  alt="Ralph McBride and Janine Neely"
-                  className="aspect-[4/5] w-full object-cover"
-                />
-              </div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                The Ranch Team
-              </p>
-              <h3 className="mt-1 text-xl font-semibold text-black">
-                Ralph & Janine
-              </h3>
-              <p className="mt-2 text-sm text-gray-500">
-                Ethical breeders · Laveen, Arizona
-              </p>
-              <p className="mt-3 text-sm text-gray-600">
-                Home-raised puppies, health-tested parents, lifetime support
-              </p>
-            </div>
-          </div>
+              <p className="mt-1 text-sm text-gray-500">Master of Puppies</p>
+            </figcaption>
+          </figure>
         </div>
       </section>
     </>

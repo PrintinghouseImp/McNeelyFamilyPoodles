@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApplyChooser } from "@/components/apply/apply-chooser";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PhotoFrame } from "@/components/inventory/photo-frame";
@@ -171,12 +172,12 @@ export default async function PuppyDetailPage({ params }: Props) {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               {canApply ? (
-                <Link
-                  href={`/apply?puppy=${puppy.slug}`}
+                <ApplyChooser
+                  puppySlug={puppy.slug}
                   className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-900"
                 >
                   Apply for {puppy.name}
-                </Link>
+                </ApplyChooser>
               ) : null}
               {canApply ? (
                 <Link

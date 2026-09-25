@@ -19,6 +19,12 @@ export async function SiteFooter() {
         <div>
           <p className="text-lg font-semibold text-black">{SITE.name}</p>
           <p className="mt-2 text-sm text-gray-500">{SITE.tagline}</p>
+          <p className="mt-2 text-sm text-gray-500">
+            Contact:{" "}
+            <a href="tel:+19705818723" className="hover:text-black">
+              970-581-8723
+            </a>
+          </p>
           <p className="mt-4 text-xs text-gray-400">
             © {year} {SITE.name}
           </p>

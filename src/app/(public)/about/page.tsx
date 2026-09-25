@@ -1,7 +1,7 @@
 import { SectionShell } from "@/components/ui/section-shell";
 
 const FULL_LOGO =
-  "https://images.mcneelyfamilypoodles.com/About/McNeely%20Logo%20Full.png";
+  "https://images.mcneelyfamilypoodles.com/About/McNeely%20Logo.jpg";
 const JANINE =
   "https://images.mcneelyfamilypoodles.com/About/Janine%20Hero.png";
 const RALPH =
@@ -37,11 +37,11 @@ export default async function AboutPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={FULL_LOGO}
-            alt="McNeely Family Poodles"
-            className="mb-10 h-20 w-auto"
+            alt="McNeely Logo"
+            className="mb-8 h-28 w-auto md:h-36"
           />
-          <h1 className="text-4xl font-semibold tracking-tight text-black md:text-5xl">
-            Our Program
+          <h1 className="text-4xl font-bold tracking-tight text-black md:text-5xl">
+            our program
           </h1>
           <div className="mt-8 space-y-6 text-lg leading-relaxed text-gray-700">
             <p>

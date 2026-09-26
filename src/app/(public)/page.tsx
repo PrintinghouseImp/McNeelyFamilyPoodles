@@ -25,8 +25,8 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="flex min-h-[calc(100svh-4.5rem)] max-w-full flex-col overflow-x-clip bg-white px-6 py-8">
-        <div className="mx-auto flex w-full min-w-0 max-w-[40rem] flex-1 flex-col items-center text-center">
+      <section className="max-w-full overflow-x-clip bg-white px-6 py-8">
+        <div className="mx-auto flex w-full min-w-0 max-w-[40rem] flex-col items-center text-center">
           <h1 className="w-full text-balance text-4xl font-bold tracking-tight text-black md:text-5xl lg:text-6xl">
             Miniature Poodles
           </h1>
@@ -44,8 +44,8 @@ export default async function HomePage() {
                 View available puppies
               </Link>
               <p className="mt-3 text-sm text-gray-500">
-                Don&apos;t live in Phoenix, AZ? No problem. We offer nationwide
-                delivery!
+                Don&apos;t live in Phoenix, AZ? No problem. Nationwide
+                delivery is available through our affiliates!
               </p>
             </div>
           </div>
@@ -53,14 +53,14 @@ export default async function HomePage() {
       </section>
 
       {available.length > 0 ? (
-        <SectionShell>
+        <SectionShell className="!pt-8">
           <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-black md:text-3xl">
                 Available now
               </h2>
               <p className="mt-2 text-gray-500">
-                From our latest litters — each puppy links to sire and dam.
+                From our latest litters.
               </p>
             </div>
             <Link

@@ -7,7 +7,7 @@ const JANINE =
 const RALPH =
   "https://images.mcneelyfamilypoodles.com/About/Ralph%20Hero.png";
 const OLEANDER =
-  "https://images.mcneelyfamilypoodles.com/About/Oleander.jpg";
+  "https://images.mcneelyfamilypoodles.com/About/Oleander%20Hero.jpg";
 
 export const metadata = {
   title: "Our Program",
@@ -41,30 +41,30 @@ export default async function AboutPage() {
             className="mb-8 h-28 w-auto md:h-36"
           />
           <h1 className="text-4xl font-bold tracking-tight text-black md:text-5xl">
-            our program
+            Our Program
           </h1>
           <div className="mt-8 space-y-6 text-lg leading-relaxed text-gray-700">
             <p>
-              Ralph McBride and Janine Neely breed miniature poodles in
-              Phoenix. We are a household of working scientists who live with
-              the breed and take its long-term health as the point of the
-              program.
+              Ralph and Janine McNeely raise miniature poodles in Phoenix.
+              By day we work in the physical sciences. The rest of the time our
+              time belongs to the dogs!
             </p>
             <p>
-              Poodles are not a product. They are a lineage. Our job is to
-              choose carefully, raise them in the house, and send them out
-              ready for adult life—as companions first, and as working or
-              service prospects when that is the match.
+              We do not sell a product. We curate a lineage. That means picking
+              parents to the highest genetic standards, raising their puppies
+              underfoot, and sending them out ready for a long happy life as
+              loving companions first, and working or service dogs when that is
+              the right match.
             </p>
             <p>
-              That means genetic testing of breeding dogs, veterinary care and
-              vaccinations for puppies, and a steady evaluation of how each
-              puppy is developing, body and temperament, before it leaves.
+              Health is the whole point. Breeding dogs are genetically tested
+              for all common poodle-related disorders. Puppies get fully
+              vacinated on schedule, veterinary care, and benchmark checks on
+              how they are growing, body and mind, before they leave our home.
             </p>
             <p>
-              The program started in 2022 in Laveen. Placement includes a
-              lifetime take-back. Rescue organizations in the valley that need
-              help with other breeds can ask.
+              The program started in 2022 in Laveen. If life changes and you
+              cannot keep a dog we placed, our door is always open.
             </p>
           </div>
         </div>
@@ -84,7 +84,7 @@ export default async function AboutPage() {
                 className="aspect-[4/5] w-full rounded-2xl border border-gray-200 object-cover"
               />
               <figcaption className="mt-4">
-                <h3 className="text-xl font-semibold text-black">Janine Neely</h3>
+                <h3 className="text-xl font-semibold text-black">Janine</h3>
                 <p className="mt-1 text-sm text-gray-500">Gene Jockey</p>
               </figcaption>
             </figure>
@@ -96,7 +96,7 @@ export default async function AboutPage() {
                 className="aspect-[4/5] w-full rounded-2xl border border-gray-200 object-cover"
               />
               <figcaption className="mt-4">
-                <h3 className="text-xl font-semibold text-black">Ralph McBride</h3>
+                <h3 className="text-xl font-semibold text-black">Ralph</h3>
                 <p className="mt-1 text-sm text-gray-500">Poodle Ranger</p>
               </figcaption>
             </figure>
@@ -120,7 +120,7 @@ export default async function AboutPage() {
             ) : null}
             <figcaption className={showOleander ? "mt-4" : undefined}>
               <h3 className="text-xl font-semibold text-black">
-                Oleander Lawrence
+                Oleander
               </h3>
               <p className="mt-1 text-sm text-gray-500">Master of Puppies</p>
             </figcaption>

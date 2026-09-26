@@ -27,26 +27,32 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="flex min-h-[calc(100svh-4.5rem)] flex-col bg-white px-6 py-8">
-        <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 md:grid-cols-2">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight text-black md:text-5xl lg:text-6xl">
-              Raising miniature poodles in Phoenix, AZ
+      <section className="flex min-h-[calc(100svh-4.5rem)] max-w-full flex-col overflow-x-clip bg-white px-4 py-8 sm:px-6">
+        <div className="mx-auto grid w-full min-w-0 max-w-6xl flex-1 items-center gap-10 md:grid-cols-2">
+          <div className="min-w-0">
+            <h1 className="max-w-full text-balance text-4xl font-bold tracking-tight text-black md:text-5xl lg:text-6xl">
+              Miniature Poodles
             </h1>
-            <p className="mt-5 text-lg text-gray-500 md:text-xl">
-              Find your next family member with full confidence that
-              they&apos;ve been bred with the highest standard of care
+            <p className="mt-5 max-w-full text-lg text-gray-500 md:text-xl">
+              Find your next family member with full confidence they&apos;ve
+              been raised to the highest standard
             </p>
           </div>
-          <HeroVideo />
-        </div>
-        <div className="mx-auto mt-8 pb-4">
-          <Link
-            href="/puppies"
-            className="inline-flex rounded-full bg-black px-12 py-5 text-xl font-semibold text-white transition hover:bg-gray-900 md:px-14 md:py-6 md:text-2xl"
-          >
-            View available puppies
-          </Link>
+          <div className="min-w-0">
+            <HeroVideo />
+            <div className="mt-4">
+              <Link
+                href="/puppies"
+                className="inline-flex max-w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-900"
+              >
+                View available puppies
+              </Link>
+              <p className="mt-3 max-w-full text-sm text-gray-500">
+                Don&apos;t live in Phoenix, AZ? No problem. We offer nationwide
+                delivery!
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

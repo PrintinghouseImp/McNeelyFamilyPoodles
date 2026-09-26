@@ -21,10 +21,10 @@ export default function PublicLayout({
 }) {
   return (
     <div
-      className={`${dmSans.variable} ${fraunces.variable} public-site flex min-h-full flex-1 flex-col`}
+      className={`${dmSans.variable} ${fraunces.variable} public-site flex min-h-full min-w-0 max-w-full flex-1 flex-col`}
     >
       <SiteHeader />
-      <main className="flex-1">{children}</main>
+      <main className="min-w-0 max-w-full flex-1">{children}</main>
       <SiteFooter />
     </div>
   );

@@ -121,3 +121,15 @@ a.link-quiet:hover {
   max-height: 80vh;
   object-fit: contain;
 }
+
+/* Clip sideways overflow without making html/body a scroll container. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.site-header {
+  max-width: 100%;
+  overflow-x: clip;
+}

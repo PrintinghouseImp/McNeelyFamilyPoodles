@@ -39,7 +39,10 @@ export function ApplyChooser({
       </button>
       {open
         ? createPortal(
-            <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <div
+              className="fixed left-0 top-0 z-[80] flex w-full items-center justify-center overflow-x-clip"
+              style={{ height: "100dvh" }}
+            >
               <button
                 type="button"
                 className="absolute inset-0 bg-black/40"
@@ -50,7 +53,11 @@ export function ApplyChooser({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={titleId}
-                className="relative max-h-[calc(100svh-2rem)] w-full max-w-[28rem] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+                className="relative shrink-0 overflow-x-hidden overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+                style={{
+                  width: "min(28rem, calc(100vw - 2rem))",
+                  maxHeight: "calc(100dvh - 2rem)",
+                }}
               >
                 <div className="flex items-start justify-between gap-4">
                   <h2 id={titleId} className="text-lg font-semibold text-black">

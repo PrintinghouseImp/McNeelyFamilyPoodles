@@ -22,6 +22,7 @@ export function HeroVideo() {
         video.pause();
         if (video.readyState >= 2) video.currentTime = 0.01;
       } else {
+        video.loop = true;
         void video.play().catch(() => {});
       }
     };
@@ -34,14 +35,20 @@ export function HeroVideo() {
   return (
     <video
       ref={ref}
-      className="aspect-video w-full rounded-2xl bg-gray-100 object-cover"
+      className="aspect-video w-full max-w-full rounded-2xl bg-gray-100 object-cover"
       src={SRC}
       muted
       playsInline
-      preload="metadata"
+      preload="auto"
       loop
       autoPlay
       aria-label="Miniature poodles at the ranch"
+      onEnded={(event) => {
+        const clip = event.currentTarget;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        clip.currentTime = 0;
+        void clip.play().catch(() => {});
+      }}
       onLoadedData={(event) => {
         if (!reduced) return;
         event.currentTarget.pause();

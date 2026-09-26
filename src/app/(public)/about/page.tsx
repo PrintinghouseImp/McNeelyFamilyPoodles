@@ -85,7 +85,7 @@ export default async function AboutPage() {
               />
               <figcaption className="mt-4">
                 <h3 className="text-xl font-semibold text-black">Janine</h3>
-                <p className="mt-1 text-sm text-gray-500">Gene Jockey</p>
+                <p className="mt-1 text-sm text-gray-500">Breeder</p>
               </figcaption>
             </figure>
             <figure>

@@ -75,7 +75,7 @@ export default async function AdminDepositsPage({ searchParams }: Props) {
       {deposits.length === 0 ? (
         <p className="text-gray-500">No deposit requests in this view.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
+        <div className="admin-table-panel rounded-2xl border border-gray-200 bg-white">
           <table className="min-w-full text-left text-sm">
             <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>

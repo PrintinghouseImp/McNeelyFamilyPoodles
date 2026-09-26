@@ -1,3 +1,4 @@
+import { parentOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 
 export type LitterParentOption = {
@@ -22,7 +23,7 @@ export async function litterParentChoices(current?: {
         ...(extraIds.length ? [{ id: { in: extraIds } }] : []),
       ],
     },
-    orderBy: { name: "asc" },
+    orderBy: parentOrderBy,
     select: { id: true, name: true, sex: true },
   });
 

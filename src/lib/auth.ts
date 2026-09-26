@@ -13,35 +13,20 @@ const credentialsSchema = z.object({
   password: z.string().min(1),
 });
 
-const googleEnabled = Boolean(
-  process.env.AUTH_GOOGLE_ID?.trim() && process.env.AUTH_GOOGLE_SECRET?.trim(),
-);
-const facebookEnabled = Boolean(
-  process.env.AUTH_FACEBOOK_ID?.trim() &&
-    process.env.AUTH_FACEBOOK_SECRET?.trim(),
-);
+/** Read at call time so a build without these keys does not freeze them empty. */
+function envValue(name: string): string {
+  const value = process.env[name];
+  return typeof value === "string" ? value.trim() : "";
+}
 
-/**
- * Google/Facebook emails that always receive ADMIN on OAuth sign-in.
- * Override with ADMIN_OAUTH_EMAILS=comma,separated@emails
- */
-const DEFAULT_ADMIN_OAUTH_EMAILS = [
-  "rdevinmcbride@gmail.com",
-  "janineneely@gmail.com",
-];
+function googleConfigured() {
+  return Boolean(envValue("AUTH_GOOGLE_ID") && envValue("AUTH_GOOGLE_SECRET"));
+}
 
-const ADMIN_OAUTH_EMAILS = new Set(
-  (process.env.ADMIN_OAUTH_EMAILS?.trim()
-    ? process.env.ADMIN_OAUTH_EMAILS.split(",")
-    : DEFAULT_ADMIN_OAUTH_EMAILS
-  )
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean),
-);
-
-function isAdminOauthEmail(email?: string | null): boolean {
-  if (!email) return false;
-  return ADMIN_OAUTH_EMAILS.has(email.trim().toLowerCase());
+function facebookConfigured() {
+  return Boolean(
+    envValue("AUTH_FACEBOOK_ID") && envValue("AUTH_FACEBOOK_SECRET"),
+  );
 }
 
 /**
@@ -49,14 +34,12 @@ function isAdminOauthEmail(email?: string | null): boolean {
  * Prefer AUTH_URL; fall back to Netlify's deployed URL when unset.
  */
 function resolveAuthUrl(): string | undefined {
-  const explicit = process.env.AUTH_URL?.trim() || process.env.NEXTAUTH_URL?.trim();
+  const explicit = envValue("AUTH_URL") || envValue("NEXTAUTH_URL");
   if (explicit) return explicit.replace(/\/$/, "");
 
   // Netlify provides deploy URL without protocol sometimes as URL / DEPLOY_PRIME_URL
   const netlify =
-    process.env.URL?.trim() ||
-    process.env.DEPLOY_PRIME_URL?.trim() ||
-    process.env.DEPLOY_URL?.trim();
+    envValue("URL") || envValue("DEPLOY_PRIME_URL") || envValue("DEPLOY_URL");
   if (netlify) {
     return netlify.replace(/\/$/, "");
   }
@@ -75,8 +58,8 @@ if (authUrl && !process.env.NEXTAUTH_URL) {
 /**
  * Auth.js (next-auth v5) — JWT sessions for serverless (Netlify).
  * - Admin credentials: username "admin" + password
- * - Google/Facebook OAuth → CUSTOMER by default
- * - Listed emails in ADMIN_OAUTH_EMAILS → full ADMIN via OAuth
+ * - Google/Facebook OAuth keeps the role already stored on the User row
+ * - OAuth never promotes a user to ADMIN
  *
  * Adapter persists OAuth users/accounts; session strategy stays JWT
  * so edge-less Node functions don't need DB sessions on every request.
@@ -127,127 +110,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
-    ...(googleEnabled
+    ...(googleConfigured()
       ? [
           Google({
-            clientId: process.env.AUTH_GOOGLE_ID!,
-            clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+            clientId: envValue("AUTH_GOOGLE_ID"),
+            clientSecret: envValue("AUTH_GOOGLE_SECRET"),
             allowDangerousEmailAccountLinking: true,
           }),
         ]
       : []),
-    ...(facebookEnabled
+    ...(facebookConfigured()
       ? [
           Facebook({
-            clientId: process.env.AUTH_FACEBOOK_ID!,
-            clientSecret: process.env.AUTH_FACEBOOK_SECRET!,
+            clientId: envValue("AUTH_FACEBOOK_ID"),
+            clientSecret: envValue("AUTH_FACEBOOK_SECRET"),
             allowDangerousEmailAccountLinking: true,
           }),
         ]
       : []),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      // OAuth: promote allowlisted emails to ADMIN; everyone else stays CUSTOMER
-      // (never demote an existing ADMIN, e.g. seed admin who linked Google).
-      if (account?.provider === "google" || account?.provider === "facebook") {
-        if (!user.id) return true;
+    async jwt({ token, user }) {
+      const id = user?.id ?? token.sub;
+      if (user?.id) token.sub = user.id;
+      if (user?.email) token.email = user.email;
 
-        const email = (user.email ?? "").trim().toLowerCase();
-        if (isAdminOauthEmail(email)) {
-          await db.user.update({
-            where: { id: user.id },
-            data: { role: "ADMIN" },
-          });
-          (user as { role?: string }).role = "ADMIN";
-          return true;
-        }
-
-        const existing = await db.user.findUnique({ where: { id: user.id } });
-        if (existing?.role === "ADMIN") {
-          return true;
-        }
-        if (existing && existing.role !== "CUSTOMER") {
-          await db.user.update({
-            where: { id: user.id },
-            data: { role: "CUSTOMER" },
-          });
-        }
-      }
-      return true;
-    },
-    async jwt({ token, user, account, trigger }) {
-      if (user) {
-        token.sub = user.id;
-        if (user.email) token.email = user.email;
-
-        // Prefer role set during signIn (e.g. OAuth admin allowlist)
-        const roleFromUser = (user as { role?: string }).role;
-        if (roleFromUser) {
-          token.role = roleFromUser;
-        } else if (isAdminOauthEmail(user.email)) {
-          token.role = "ADMIN";
-        } else if (user.id) {
-          const dbUser = await db.user.findUnique({
-            where: { id: user.id },
-            select: { role: true },
-          });
-          token.role = dbUser?.role ?? "CUSTOMER";
-        } else {
-          token.role = "CUSTOMER";
-        }
+      if (!id) {
+        token.role = "CUSTOMER";
+        return token;
       }
 
-      if (
-        account &&
-        (account.provider === "google" || account.provider === "facebook")
-      ) {
-        if (token.sub) {
-          // Re-read after signIn may have promoted role
-          const dbUser = await db.user.findUnique({
-            where: { id: token.sub },
-            select: { role: true, name: true, email: true, image: true },
-          });
-          const email = dbUser?.email ?? (token.email as string | undefined);
-          if (isAdminOauthEmail(email)) {
-            token.role = "ADMIN";
-            if (dbUser && dbUser.role !== "ADMIN") {
-              await db.user.update({
-                where: { id: token.sub },
-                data: { role: "ADMIN" },
-              });
-            }
-          } else {
-            token.role = dbUser?.role ?? "CUSTOMER";
-          }
-          if (dbUser?.name) token.name = dbUser.name;
-          if (dbUser?.email) token.email = dbUser.email;
-          if (dbUser?.image) token.picture = dbUser.image;
-        }
-      }
-
-      if (trigger === "update" && token.sub) {
-        const dbUser = await db.user.findUnique({
-          where: { id: token.sub },
-          select: { role: true, email: true },
-        });
-        if (isAdminOauthEmail(dbUser?.email ?? (token.email as string))) {
-          token.role = "ADMIN";
-        } else {
-          token.role = dbUser?.role ?? token.role ?? "CUSTOMER";
-        }
-      }
-
-      if (!token.role && token.sub) {
-        const dbUser = await db.user.findUnique({
-          where: { id: token.sub },
-          select: { role: true, email: true },
-        });
-        token.role = isAdminOauthEmail(dbUser?.email)
-          ? "ADMIN"
-          : (dbUser?.role ?? "CUSTOMER");
-      }
-
+      const dbUser = await db.user.findUnique({
+        where: { id },
+        select: { role: true, email: true, name: true, image: true },
+      });
+      token.role = dbUser?.role === "ADMIN" ? "ADMIN" : "CUSTOMER";
+      if (dbUser?.email) token.email = dbUser.email;
+      if (dbUser?.name) token.name = dbUser.name;
+      if (dbUser?.image) token.picture = dbUser.image;
       return token;
     },
     async session({ session, token }) {
@@ -261,6 +161,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 });
 
 export const oauthProviders = {
-  google: googleEnabled,
-  facebook: facebookEnabled,
-} as const;
+  get google() {
+    return googleConfigured();
+  },
+  get facebook() {
+    return facebookConfigured();
+  },
+};

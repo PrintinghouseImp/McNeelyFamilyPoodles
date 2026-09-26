@@ -6,6 +6,7 @@ import {
 import { AdminCheckoutForm } from "@/components/payments/admin-checkout-form";
 import { btnSecondary } from "@/components/admin/field";
 import { requireAdmin } from "@/lib/admin";
+import { puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 import { isEmailConfigured } from "@/lib/email";
 import {
@@ -47,7 +48,7 @@ export default async function AdminPaymentsPage({ searchParams }: Props) {
       },
     }),
     db.puppy.findMany({
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      orderBy: puppyOrderBy,
       select: {
         id: true,
         name: true,

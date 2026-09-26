@@ -3,6 +3,7 @@ import { ApplicationForm } from "@/components/apply/application-form";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
 import { auth } from "@/lib/auth";
+import { puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 import { isPortalRole } from "@/lib/portal";
 import { formatPuppyStatus } from "@/lib/format";
@@ -32,10 +33,7 @@ export default async function ApplyPage({ searchParams }: Props) {
   const [puppies, selectedPuppy] = await Promise.all([
     db.puppy.findMany({
       where: { isPublished: true },
-      orderBy: [
-        { birthDate: { sort: "desc", nulls: "last" } },
-        { name: "asc" },
-      ],
+      orderBy: puppyOrderBy,
       select: { id: true, name: true, status: true, slug: true },
     }),
     puppySlug

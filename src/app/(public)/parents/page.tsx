@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ParentCard } from "@/components/inventory/parent-card";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
+import { parentOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 
 export const metadata = {
@@ -13,7 +14,7 @@ export default async function ParentsPage() {
   // Active breeding dogs only — retired parents live on /alumni
   const parents = await db.parentDog.findMany({
     where: { isPublished: true, isRetired: false },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    orderBy: parentOrderBy,
     include: {
       photos: {
         orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],

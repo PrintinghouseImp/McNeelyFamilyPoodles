@@ -7,6 +7,7 @@ import { PuppyCard } from "@/components/inventory/puppy-card";
 import { ViewGeneticsButton } from "@/components/inventory/view-genetics-button";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
+import { litterOrderBy, puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 import { formatDate, formatSex } from "@/lib/format";
 import { SITE } from "@/lib/constants";
@@ -22,12 +23,12 @@ async function getParent(slug: string) {
       },
       littersAsDam: {
         where: { isPublished: true },
-        orderBy: { birthDate: "desc" },
+        orderBy: litterOrderBy,
         include: {
           sire: true,
           puppies: {
             where: { isPublished: true },
-            orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+            orderBy: puppyOrderBy,
             include: {
               photos: {
                 orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
@@ -39,12 +40,12 @@ async function getParent(slug: string) {
       },
       littersAsSire: {
         where: { isPublished: true },
-        orderBy: { birthDate: "desc" },
+        orderBy: litterOrderBy,
         include: {
           dam: true,
           puppies: {
             where: { isPublished: true },
-            orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+            orderBy: puppyOrderBy,
             include: {
               photos: {
                 orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
@@ -95,10 +96,14 @@ export default async function ParentDetailPage({ params }: Props) {
       role: "sire" as const,
       mate: l.dam,
     })),
-  ].sort(
-    (a, b) =>
-      new Date(b.birthDate).getTime() - new Date(a.birthDate).getTime(),
-  );
+  ].sort((a, b) => {
+    const byDate =
+      new Date(b.birthDate).getTime() - new Date(a.birthDate).getTime();
+    if (byDate !== 0) return byDate;
+    return (a.name ?? "").localeCompare(b.name ?? "", undefined, {
+      sensitivity: "base",
+    });
+  });
 
   const roleLabel = parent.sex === "MALE" ? "Sire" : "Dam";
   const specs = [

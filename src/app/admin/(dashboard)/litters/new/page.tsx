@@ -9,6 +9,7 @@ import {
   Field } from "@/components/admin/field";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
+import { parentOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 
 export const metadata = { title: "Admin · New litter" };
@@ -17,7 +18,7 @@ export default async function NewLitterPage() {
   await requireAdmin();
 
   const parents = await db.parentDog.findMany({
-    orderBy: { name: "asc" },
+    orderBy: parentOrderBy,
     select: { id: true, name: true, sex: true } });
   const dams = parents.filter((p) => p.sex === "FEMALE");
   const sires = parents.filter((p) => p.sex === "MALE");

@@ -52,11 +52,11 @@ export default async function NewParentPage() {
           </Field>
         </div>
         <GeneticsEditor />
+        <Field label="Birth date" hint="Optional. Used to order parent lists.">
+          <input name="birthDate" type="date" className={inputClass} />
+        </Field>
         <Field label="Description">
           <textarea name="description" className={textareaClass} />
-        </Field>
-        <Field label="Sort order">
-          <input name="sortOrder" type="number" defaultValue={0} className={inputClass} />
         </Field>
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input type="checkbox" name="isPublished" defaultChecked className={checkClass} />

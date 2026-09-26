@@ -105,6 +105,8 @@ model ParentDog {
   /// Shape: { version: 1, entries: [{ id, label, value, source }], notes? }
   geneticsData Json?
   description  String?  @db.Text
+  /// Optional. Lists use this when set; otherwise createdAt, then name.
+  birthDate    DateTime?
   isRetired    Boolean  @default(false)
   isPublished  Boolean  @default(true)
   sortOrder    Int      @default(0)

@@ -13,6 +13,7 @@ import {
   Field } from "@/components/admin/field";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
+import { parentOrderBy, puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
 
@@ -42,10 +43,10 @@ export default async function EditMedicalRecordPage({ params }: Props) {
         parentDog: { select: { id: true, name: true } },
         puppy: { select: { id: true, name: true } } } }),
     db.parentDog.findMany({
-      orderBy: { name: "asc" },
+      orderBy: parentOrderBy,
       select: { id: true, name: true, sex: true } }),
     db.puppy.findMany({
-      orderBy: { name: "asc" },
+      orderBy: puppyOrderBy,
       select: { id: true, name: true } }),
   ]);
 

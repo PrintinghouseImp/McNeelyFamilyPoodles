@@ -10,6 +10,7 @@ import {
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
 import { SITE } from "@/lib/constants";
+import { parentOrderBy, puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 
 export const metadata = {
@@ -33,7 +34,7 @@ export default async function AlumniPage({ searchParams }: Props) {
   const [retiredParents, adoptedPuppies] = await Promise.all([
     db.parentDog.findMany({
       where: { isPublished: true, isRetired: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      orderBy: parentOrderBy,
       include: {
         photos: {
           orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
@@ -43,7 +44,7 @@ export default async function AlumniPage({ searchParams }: Props) {
     }),
     db.puppy.findMany({
       where: { isPublished: true, isAdopted: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      orderBy: puppyOrderBy,
       include: {
         photos: {
           orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],

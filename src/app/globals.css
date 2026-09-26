@@ -133,3 +133,46 @@ body {
   max-width: 100%;
   overflow-x: clip;
 }
+
+/* Admin list panels only. Scroll inside the panel, not the admin chrome. */
+.admin-table-panel {
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100dvh - 12rem);
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.admin-table-panel table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-table-panel thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f9fafb;
+}
+
+.admin-table-panel th:first-child,
+.admin-table-panel td:first-child {
+  position: sticky;
+  left: 0;
+}
+
+.admin-table-panel thead th:first-child {
+  z-index: 3;
+  background: #f9fafb;
+}
+
+.admin-table-panel tbody td:first-child {
+  z-index: 1;
+  background: #fff;
+}
+
+.admin-table-panel tbody tr:hover td:first-child {
+  background: #f9fafb;
+}

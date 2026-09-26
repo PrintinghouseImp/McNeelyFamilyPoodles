@@ -220,14 +220,6 @@ export default async function EditPuppyPage({ params, searchParams }: Props) {
             className={textareaClass}
           />
         </Field>
-        <Field label="Sort order">
-          <input
-            name="sortOrder"
-            type="number"
-            defaultValue={puppy.sortOrder}
-            className={inputClass}
-          />
-        </Field>
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input
             type="checkbox"

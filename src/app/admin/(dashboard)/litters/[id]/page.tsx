@@ -11,6 +11,7 @@ import {
   textareaClass,
   Field } from "@/components/admin/field";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { parentOrderBy, puppyOrderBy } from "@/lib/dog-order";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
 
@@ -34,9 +35,12 @@ export default async function EditLitterPage({ params }: Props) {
       where: { id },
       include: {
         photos: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
-        puppies: { select: { id: true, name: true, slug: true } } } }),
+        puppies: {
+          orderBy: puppyOrderBy,
+          select: { id: true, name: true, slug: true },
+        } } }),
     db.parentDog.findMany({
-      orderBy: { name: "asc" },
+      orderBy: parentOrderBy,
       select: { id: true, name: true, sex: true } }),
   ]);
   if (!litter) notFound();

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { Sex } from "@/generated/prisma/client";
 import { requireAdmin } from "@/lib/admin";
 import { db } from "@/lib/db";
-import { bool, num, optionalStr, str } from "@/lib/form";
+import { bool, dateOnly, num, optionalStr, str } from "@/lib/form";
 import { geneticsFromFormData } from "@/lib/genetics";
 import { slugify, uniqueSlug } from "@/lib/slug";
 import { Prisma } from "@/generated/prisma/client";
@@ -48,7 +48,7 @@ export async function createParent(formData: FormData) {
       description: optionalStr(formData, "description"),
       isRetired: bool(formData, "isRetired"),
       isPublished: bool(formData, "isPublished"),
-      sortOrder: num(formData, "sortOrder") ?? 0,
+      birthDate: dateOnly(formData, "birthDate"),
     },
   });
 
@@ -96,7 +96,7 @@ export async function updateParent(formData: FormData) {
       description: optionalStr(formData, "description"),
       isRetired: bool(formData, "isRetired"),
       isPublished: bool(formData, "isPublished"),
-      sortOrder: num(formData, "sortOrder") ?? 0,
+      birthDate: dateOnly(formData, "birthDate"),
     },
   });
 

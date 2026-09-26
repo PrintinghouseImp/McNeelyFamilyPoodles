@@ -114,19 +114,21 @@ export default async function EditParentPage({ params, searchParams }: Props) {
           geneticsData={parent.geneticsData}
           geneticsText={parent.genetics}
         />
+        <Field label="Birth date" hint="Optional. Used to order parent lists.">
+          <input
+            name="birthDate"
+            type="date"
+            defaultValue={
+              parent.birthDate ? parent.birthDate.toISOString().slice(0, 10) : ""
+            }
+            className={inputClass}
+          />
+        </Field>
         <Field label="Description">
           <textarea
             name="description"
             defaultValue={parent.description ?? ""}
             className={textareaClass}
-          />
-        </Field>
-        <Field label="Sort order">
-          <input
-            name="sortOrder"
-            type="number"
-            defaultValue={parent.sortOrder}
-            className={inputClass}
           />
         </Field>
         <label className="flex items-center gap-2 text-sm text-gray-700">

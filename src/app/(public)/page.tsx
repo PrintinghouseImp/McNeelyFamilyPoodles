@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HeroVideo } from "@/components/home/hero-video";
 import { PuppyCard } from "@/components/inventory/puppy-card";
 import { SectionShell } from "@/components/ui/section-shell";
+import { puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 
 export default async function HomePage() {
@@ -12,10 +13,7 @@ export default async function HomePage() {
       isAdopted: false,
       status: { in: ["AVAILABLE", "GUARDIANSHIP"] },
     },
-    orderBy: [
-      { birthDate: { sort: "desc", nulls: "last" } },
-      { createdAt: "desc" },
-    ],
+    orderBy: puppyOrderBy,
     take: 3,
     include: {
       photos: {

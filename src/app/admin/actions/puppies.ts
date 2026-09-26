@@ -9,7 +9,6 @@ import {
   bool,
   dateOnly,
   dollarsToCents,
-  num,
   optionalStr,
   str,
 } from "@/lib/form";
@@ -36,7 +35,7 @@ async function litterIdForParents(
 
   const matches = await db.litter.findMany({
     where: { damId, sireId },
-    orderBy: { birthDate: "desc" },
+    orderBy: [{ birthDate: "desc" }, { name: "asc" }],
   });
   if (birthDate) {
     const day = birthDate.toISOString().slice(0, 10);
@@ -118,7 +117,6 @@ export async function createPuppy(formData: FormData) {
       litterId,
       isAdopted,
       isPublished: bool(formData, "isPublished"),
-      sortOrder: num(formData, "sortOrder") ?? 0,
     },
   });
 
@@ -177,7 +175,6 @@ export async function updatePuppy(formData: FormData) {
       litterId,
       isAdopted,
       isPublished: bool(formData, "isPublished"),
-      sortOrder: num(formData, "sortOrder") ?? 0,
     },
   });
 

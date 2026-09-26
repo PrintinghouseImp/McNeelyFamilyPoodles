@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DepositForm } from "@/components/deposits/deposit-form";
 import { PaymentHandlesCard } from "@/components/deposits/payment-handles";
 import { requirePortalUser } from "@/lib/portal";
+import { puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 import { formatPuppyStatus } from "@/lib/format";
 import { getPaymentHandles } from "@/lib/settings";
@@ -23,7 +24,7 @@ export default async function NewDepositPage({ searchParams }: Props) {
         isPublished: true,
         status: { in: ["AVAILABLE", "GUARDIANSHIP", "RESERVED"] },
       },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      orderBy: puppyOrderBy,
       select: { id: true, name: true, status: true },
     }),
     puppySlug

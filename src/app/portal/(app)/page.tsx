@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ApplyChooser } from "@/components/apply/apply-chooser";
 import { OpenPaymentsPanel } from "@/components/payments/open-payments-panel";
-import { requirePortalUser } from "@/lib/portal";
+import { requirePortalUser, safePortalCallback } from "@/lib/portal";
 import { getPortalOpenPayments } from "@/lib/portal-payments";
 import { db } from "@/lib/db";
 
@@ -9,8 +10,18 @@ export const metadata = {
   title: "My portal",
 };
 
-export default async function PortalHomePage() {
+type Props = {
+  searchParams: Promise<{ from?: string; next?: string }>;
+};
+
+export default async function PortalHomePage({ searchParams }: Props) {
   const session = await requirePortalUser();
+  const params = await searchParams;
+  if (params.from === "login") {
+    if (session.user.role === "ADMIN") redirect("/admin");
+    const next = safePortalCallback(params.next, "");
+    if (next.startsWith("/portal") && next !== "/portal") redirect(next);
+  }
   const userId = session.user.id;
   const email = session.user.email;
 

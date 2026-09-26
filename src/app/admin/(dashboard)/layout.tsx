@@ -14,8 +14,8 @@ export default async function AdminDashboardLayout({
   const session = await requireAdmin();
 
   return (
-    <div className="flex min-h-screen bg-white text-black">
-      <aside className="hidden w-64 shrink-0 border-r border-gray-200 bg-white p-6 md:block">
+    <div className="flex min-h-screen w-full max-w-full overflow-x-hidden bg-white text-black">
+      <aside className="hidden w-64 shrink-0 overflow-x-hidden border-r border-gray-200 bg-white p-6 md:block">
         <p className="mb-1 text-xs uppercase tracking-widest text-gray-400">
           Admin
         </p>
@@ -28,7 +28,7 @@ export default async function AdminDashboardLayout({
             <Link
               key={item.href}
               href={item.href}
-              className="block rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-gray-50 hover:text-black"
+              className="block break-words rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-gray-50 hover:text-black"
             >
               {item.label}
             </Link>
@@ -51,17 +51,19 @@ export default async function AdminDashboardLayout({
           </Link>
         </div>
       </aside>
-      <div className="flex-1 bg-gray-50">
-        <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 md:hidden">
-          <p className="font-semibold text-black">Admin · {SITE.name}</p>
+      <div className="min-w-0 max-w-full flex-1 overflow-x-hidden bg-gray-50">
+        <header className="flex min-w-0 items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-4 sm:px-6 md:hidden">
+          <p className="min-w-0 break-words font-semibold text-black">
+            Admin · {SITE.name}
+          </p>
           <form action={adminLogout}>
             <button type="submit" className="text-sm text-gray-500">
               Sign out
             </button>
           </form>
         </header>
-        <div className="border-b border-gray-200 bg-white px-6 py-3 md:hidden">
-          <nav className="flex flex-wrap gap-3 text-sm">
+        <div className="min-w-0 border-b border-gray-200 bg-white px-4 py-3 sm:px-6 md:hidden">
+          <nav className="flex max-w-full flex-wrap gap-x-3 gap-y-2 text-sm">
             {ADMIN_NAV.map((item) => (
               <Link
                 key={item.href}
@@ -73,7 +75,9 @@ export default async function AdminDashboardLayout({
             ))}
           </nav>
         </div>
-        <main className="p-6 md:p-10">{children}</main>
+        <main className="min-w-0 max-w-full overflow-x-hidden p-4 sm:p-6 md:p-10">
+          {children}
+        </main>
       </div>
     </div>
   );

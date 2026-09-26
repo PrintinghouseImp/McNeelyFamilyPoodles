@@ -3,6 +3,7 @@ import { ApplyChooser } from "@/components/apply/apply-chooser";
 import { PuppyCard } from "@/components/inventory/puppy-card";
 import { PageHero } from "@/components/ui/page-hero";
 import { SectionShell } from "@/components/ui/section-shell";
+import { litterOrderBy, puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
 
@@ -24,13 +25,13 @@ export default async function PuppiesPage() {
       isPublished: true,
       puppies: { some: activePuppyWhere },
     },
-    orderBy: { birthDate: "desc" },
+    orderBy: litterOrderBy,
     include: {
       dam: { select: { slug: true, name: true } },
       sire: { select: { slug: true, name: true } },
       puppies: {
         where: activePuppyWhere,
-        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+        orderBy: puppyOrderBy,
         include: {
           photos: {
             orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
@@ -43,7 +44,7 @@ export default async function PuppiesPage() {
 
   const unassigned = await db.puppy.findMany({
     where: { ...activePuppyWhere, litterId: null },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    orderBy: puppyOrderBy,
     include: {
       photos: {
         orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],

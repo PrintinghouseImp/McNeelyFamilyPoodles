@@ -8,6 +8,7 @@ import {
   Field } from "@/components/admin/field";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { requireAdmin } from "@/lib/admin";
+import { parentOrderBy, puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 
 export const metadata = { title: "Admin · New medical record" };
@@ -28,10 +29,10 @@ export default async function NewMedicalRecordPage({ searchParams }: Props) {
 
   const [parents, puppies] = await Promise.all([
     db.parentDog.findMany({
-      orderBy: { name: "asc" },
+      orderBy: parentOrderBy,
       select: { id: true, name: true, sex: true } }),
     db.puppy.findMany({
-      orderBy: { name: "asc" },
+      orderBy: puppyOrderBy,
       select: { id: true, name: true } }),
   ]);
 

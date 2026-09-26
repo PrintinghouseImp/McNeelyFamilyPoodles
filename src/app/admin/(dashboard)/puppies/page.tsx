@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin";
+import { puppyOrderBy } from "@/lib/dog-order";
 import { db } from "@/lib/db";
 import { formatPuppyPrice, formatPuppyStatus, formatSex } from "@/lib/format";
 import { btnPrimary, btnSecondary } from "@/components/admin/field";
@@ -10,10 +11,7 @@ export default async function AdminPuppiesPage() {
   await requireAdmin();
 
   const puppies = await db.puppy.findMany({
-    orderBy: [
-      { birthDate: { sort: "desc", nulls: "last" } },
-      { name: "asc" },
-    ],
+    orderBy: puppyOrderBy,
     include: {
       litter: { select: { name: true, slug: true } },
       _count: { select: { photos: true } },
@@ -39,7 +37,7 @@ export default async function AdminPuppiesPage() {
       {puppies.length === 0 ? (
         <p className="text-gray-500">No puppies yet.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
+        <div className="admin-table-panel rounded-2xl border border-gray-200 bg-white">
           <table className="min-w-full text-left text-sm">
             <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>

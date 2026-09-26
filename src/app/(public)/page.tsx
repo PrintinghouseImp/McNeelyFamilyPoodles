@@ -27,18 +27,16 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="flex min-h-[calc(100svh-4.5rem)] max-w-full flex-col overflow-x-clip bg-white px-4 py-8 sm:px-6">
-        <div className="mx-auto grid w-full min-w-0 max-w-6xl flex-1 items-center gap-10 md:grid-cols-2">
-          <div className="min-w-0">
-            <h1 className="max-w-full text-balance text-4xl font-bold tracking-tight text-black md:text-5xl lg:text-6xl">
-              Miniature Poodles
-            </h1>
-            <p className="mt-5 max-w-full text-lg text-gray-500 md:text-xl">
-              Find your next family member with full confidence they&apos;ve
-              been raised to the highest standard
-            </p>
-          </div>
-          <div className="min-w-0">
+      <section className="flex min-h-[calc(100svh-4.5rem)] max-w-full flex-col overflow-x-clip bg-white px-6 py-8">
+        <div className="mx-auto flex w-full min-w-0 max-w-[40rem] flex-1 flex-col items-center text-center">
+          <h1 className="w-full text-balance text-4xl font-bold tracking-tight text-black md:text-5xl lg:text-6xl">
+            Miniature Poodles
+          </h1>
+          <p className="mt-5 w-full text-lg text-gray-500 md:text-xl">
+            Find your next family member with full confidence they&apos;ve
+            been raised to the highest standard
+          </p>
+          <div className="mt-8 w-full min-w-0">
             <HeroVideo />
             <div className="mt-4">
               <Link
@@ -47,7 +45,7 @@ export default async function HomePage() {
               >
                 View available puppies
               </Link>
-              <p className="mt-3 max-w-full text-sm text-gray-500">
+              <p className="mt-3 text-sm text-gray-500">
                 Don&apos;t live in Phoenix, AZ? No problem. We offer nationwide
                 delivery!
               </p>

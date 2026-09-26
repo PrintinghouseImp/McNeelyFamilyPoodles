@@ -80,8 +80,8 @@ export default async function AboutPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={JANINE}
-                alt="Janine Neely"
-                className="aspect-[4/5] w-full rounded-2xl border border-gray-200 object-cover"
+                alt="Janine"
+                className="h-auto w-full rounded-2xl border border-gray-200"
               />
               <figcaption className="mt-4">
                 <h3 className="text-xl font-semibold text-black">Janine</h3>
@@ -92,8 +92,8 @@ export default async function AboutPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={RALPH}
-                alt="Ralph McBride"
-                className="aspect-[4/5] w-full rounded-2xl border border-gray-200 object-cover"
+                alt="Ralph"
+                className="h-auto w-full rounded-2xl border border-gray-200"
               />
               <figcaption className="mt-4">
                 <h3 className="text-xl font-semibold text-black">Ralph</h3>

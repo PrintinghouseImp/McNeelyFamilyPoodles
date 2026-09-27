@@ -175,55 +175,6 @@ async function main() {
     });
   }
 
-  // Sample forever-home stories (skip if any already exist)
-  const foreverCount = await prisma.foreverHome.count();
-  if (foreverCount === 0) {
-    await prisma.foreverHome.createMany({
-      data: [
-        {
-          dogName: "Pepper",
-          familyName: "The Rivera Family",
-          quote:
-            "She settled in from day one and is already the heart of our home. Grateful for the careful matching and support.",
-          location: "Phoenix, AZ",
-          isPublished: true,
-          sortOrder: 1,
-          placedAt: new Date("2025-10-01"),
-        },
-        {
-          dogName: "Buddy",
-          familyName: "The Chen Family",
-          quote:
-            "Thoughtful breeders, a healthy puppy, and ongoing advice. We could not be happier with our miniature poodle.",
-          location: "Scottsdale, AZ",
-          isPublished: true,
-          sortOrder: 2,
-          placedAt: new Date("2025-08-12"),
-        },
-        {
-          dogName: "Luna",
-          familyName: "The Brooks Family",
-          quote:
-            "Our first poodle has brought so much joy. Clear communication every step of the way.",
-          location: "Tucson, AZ",
-          isPublished: true,
-          sortOrder: 3,
-          placedAt: new Date("2025-06-20"),
-        },
-        {
-          dogName: "Milo",
-          familyName: "The Patel Family",
-          quote:
-            "A well-socialized companion and a smooth go-home experience. Highly recommend McNeely Family Poodles.",
-          location: "Mesa, AZ",
-          isPublished: true,
-          sortOrder: 4,
-          placedAt: new Date("2025-05-05"),
-        },
-      ],
-    });
-  }
-
   console.log("Seed complete.");
   console.log(`Admin: ${email}`);
 }

@@ -22,69 +22,22 @@ type Story = {
   placedAt: Date | null;
 };
 
-const PLACEHOLDERS: Story[] = [
-  {
-    id: "ph-1",
-    dogName: "Pepper",
-    familyName: "The Rivera Family",
-    quote:
-      "Placeholder testimonial — “She settled in from day one and is already the heart of our home.” Replace with a real forever-home story.",
-    photoUrl: null,
-    location: "Phoenix, AZ",
-    placedAt: new Date("2025-10-01"),
-  },
-  {
-    id: "ph-2",
-    dogName: "Buddy",
-    familyName: "The Chen Family",
-    quote:
-      "Placeholder testimonial — “Thoughtful breeders, healthy puppy, and ongoing support. We could not be happier.”",
-    photoUrl: null,
-    location: "Scottsdale, AZ",
-    placedAt: new Date("2025-08-12"),
-  },
-  {
-    id: "ph-3",
-    dogName: "Luna",
-    familyName: "The Brooks Family",
-    quote:
-      "Placeholder testimonial — “Our first miniature poodle has brought so much joy. Thank you for the careful match.”",
-    photoUrl: null,
-    location: "Tucson, AZ",
-    placedAt: new Date("2025-06-20"),
-  },
-  {
-    id: "ph-4",
-    dogName: "Milo",
-    familyName: "The Patel Family",
-    quote:
-      "Placeholder testimonial — “Clear communication and a well-socialized companion. Highly recommend.”",
-    photoUrl: null,
-    location: "Mesa, AZ",
-    placedAt: new Date("2025-05-05"),
-  },
-];
-
 export default async function ForeverHomesPage() {
   const rows = await db.foreverHome.findMany({
     where: { isPublished: true },
     orderBy: [{ sortOrder: "asc" }, { placedAt: "desc" }, { createdAt: "desc" }],
   });
 
-  const stories: Story[] =
-    rows.length > 0
-      ? rows.map((r) => ({
-          id: r.id,
-          dogName: r.dogName,
-          familyName: r.familyName,
-          quote: r.quote,
-          photoUrl: r.photoUrl,
-          location: r.location,
-          placedAt: r.placedAt,
-        }))
-      : PLACEHOLDERS;
+  const stories: Story[] = rows.map((r) => ({
+    id: r.id,
+    dogName: r.dogName,
+    familyName: r.familyName,
+    quote: r.quote,
+    photoUrl: r.photoUrl,
+    location: r.location,
+    placedAt: r.placedAt,
+  }));
 
-  const usingPlaceholders = rows.length === 0;
   const withPhotos = stories.filter((s) => s.photoUrl);
 
   return (
@@ -103,16 +56,14 @@ export default async function ForeverHomesPage() {
           when you are ready.
         </p>
 
-        {/* Photo grid */}
+        {stories.length > 0 ? (
         <section className="mb-16">
           <div className="mb-6 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <h2 className="text-xl font-semibold tracking-tight text-black">
               Photo gallery
             </h2>
             <p className="text-sm text-gray-500">
-              {usingPlaceholders
-                ? "Sample layout — add photos when stories are published"
-                : `${withPhotos.length} of ${stories.length} with photos`}
+              {`${withPhotos.length} of ${stories.length} with photos`}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -141,17 +92,16 @@ export default async function ForeverHomesPage() {
             ))}
           </div>
         </section>
+        ) : null}
 
-        {/* Testimonials */}
+        {stories.length > 0 ? (
         <section>
           <div className="mb-6">
             <h2 className="text-xl font-semibold tracking-tight text-black">
               Family testimonials
             </h2>
             <p className="mt-1 text-sm text-gray-500">
-              {usingPlaceholders
-                ? "Placeholder quotes until forever-home stories are added."
-                : "From families who welcomed a McNeely poodle."}
+              From families who welcomed a McNeely poodle.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -209,6 +159,7 @@ export default async function ForeverHomesPage() {
             ))}
           </div>
         </section>
+        ) : null}
 
         <div className="mt-14 text-center">
           <ApplyChooser className="inline-flex rounded-full bg-black px-8 py-3.5 text-sm font-medium text-white transition hover:bg-gray-900">
